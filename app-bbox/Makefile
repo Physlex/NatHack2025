@@ -30,7 +30,7 @@ OPT = -Og
 # paths
 #######################################
 # Build path
-BUILD_DIR = ../build
+BUILD_DIR = build
 
 ######################################
 # source
@@ -222,9 +222,11 @@ $(BUILD_DIR):
 	mkdir $@
 
 
-#######################################
+#######################################
+
 # build the library
-#######################################
+#######################################
+
 # list of objects
 LIB_OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(LIB_C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(LIB_C_SOURCES)))
