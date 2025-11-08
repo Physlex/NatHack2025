@@ -1,11 +1,8 @@
 
 
 #include "main.h"
-<<<<<<< Updated upstream
 #include "lib.h"
-=======
 #include "stm32wbxx_hal_rcc.h"
->>>>>>> Stashed changes
 
 #include <stdint.h>
 
@@ -62,17 +59,8 @@ int main(void) {
   BSP_LED_On(LED_GREEN);
   BSP_LED_On(LED_RED);
 
-<<<<<<< Updated upstream
-  /* USER CODE END BSP */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-    fft_wrapper();
-=======
   while (1) {
->>>>>>> Stashed changes
+    fft_wrapper();
 
     /* -- Sample board code for User push-button in interrupt mode ---- */
     BSP_LED_Toggle(LED_BLUE);

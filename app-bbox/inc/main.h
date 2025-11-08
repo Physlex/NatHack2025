@@ -5,11 +5,7 @@
 extern "C" {
 #endif
 
-<<<<<<< Updated upstream
 #include "stm32wbxx_hal.h"
-=======
-/* Includes ------------------------------------------------------------------*/
->>>>>>> Stashed changes
 
 #include "stm32wbxx_nucleo.h"
 #include "ble.h"

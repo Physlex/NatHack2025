@@ -9,8 +9,8 @@
 
 
 typedef enum ble_error {
-    SUCCESS=0,
-    REQUIREMENTS
+    BLE_SUCCESS=0,
+    BLE_REQUIREMENTS
 } ble_error_kind;
 
 

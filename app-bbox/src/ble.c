@@ -6,30 +6,30 @@ static float32_t ble_double_buffer[(NPERSEG << 1)];
 
 int8_t ble_init(ble_pool_t *self) {
     if (!self) {
-        return -REQUIREMENTS;
+        return -BLE_REQUIREMENTS;
     }
 
     self->buffers.buffer0 = ble_double_buffer;
     self->buffers.buffer1 = ble_double_buffer + NPERSEG;
 
-    return SUCCESS;
+    return BLE_SUCCESS;
 }
 
 
 int8_t ble_swap_buffer(ble_pool_t *self) {
     if (!self) {
-        return -REQUIREMENTS;
+        return -BLE_REQUIREMENTS;
     }
 
     self->active_buffer = (self->active_buffer + 1) % 2;
 
-    return SUCCESS;
+    return BLE_SUCCESS;
 }
 
 
 int8_t ble_fill_buffer(ble_pool_t *self) {
     if (!self) {
-        return -REQUIREMENTS;
+        return -BLE_REQUIREMENTS;
     }
 
     //! @note Fill the active buffer.
