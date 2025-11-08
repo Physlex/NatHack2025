@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "lib.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -134,6 +135,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    fft_wrapper();
 
     /* -- Sample board code for User push-button in interrupt mode ---- */
     BSP_LED_Toggle(LED_BLUE);

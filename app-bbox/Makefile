@@ -72,6 +72,18 @@ ASMM_SOURCES =
 # ASMMC sources
 ASMMC_SOURCE =
 
+#######################################
+# libdsp
+#######################################
+
+LIB_NAME = libdsp
+
+LIB_C_SOURCES = \
+lib/lib.c \
+Drivers/CMSIS/DSP/Source/TransformFunctions/TransformFunctions.c
+
+LIB_ASMM_SOURCES = \
+Drivers/CMSIS/DSP/Source/TransformFunctions/arm_bitreversal2.S
 
 #######################################
 # binaries
@@ -84,11 +96,13 @@ CC = $(GCC_PATH)/$(PREFIX)gcc
 AS = $(GCC_PATH)/$(PREFIX)gcc -x assembler-with-cpp
 CP = $(GCC_PATH)/$(PREFIX)objcopy
 SZ = $(GCC_PATH)/$(PREFIX)size
+RL = $(GCC_BIN)/$(PREFIX)ranlib
 else
 CC = $(PREFIX)gcc
 AS = $(PREFIX)gcc -x assembler-with-cpp
 CP = $(PREFIX)objcopy
 SZ = $(PREFIX)size
+RL = $(PREFIX)ranlib
 endif
 HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
@@ -129,6 +143,7 @@ C_INCLUDES =  \
 -IDrivers/STM32WBxx_HAL_Driver/Inc/Legacy \
 -IDrivers/BSP/P-NUCLEO-WB55.Nucleo \
 -IDrivers/CMSIS/Device/ST/STM32WBxx/Include \
+-IDrivers/CMSIS/DSP/Include \
 -IDrivers/CMSIS/Include
 
 
@@ -153,12 +168,19 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 LDSCRIPT = stm32wb55xx_flash_cm4.ld
 
 # libraries
-LIBS = -lc -lm -lnosys
-LIBDIR =
+LIBS = -lc -lm -lnosys -ldsp
+LIBDIR = -L./build
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all
-all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
+.PHONY: all lib lib-test src
+all: src lib
+
+lib: $(BUILD_DIR)/$(LIB_NAME).a
+
+lib-test: $(BUILD_DIR)/$(TARGET)-lib.elf
+
+src: lib $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
 
 
 #######################################
@@ -195,6 +217,26 @@ $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 
 $(BUILD_DIR):
 	mkdir $@
+
+
+#######################################
+# build the library
+#######################################
+
+LIB_OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(LIB_C_SOURCES:.c=.o)))
+vpath %.c $(sort $(dir $(LIB_C_SOURCES)))
+LIB_OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(LIB_ASMM_SOURCES:.S=.o)))
+vpath %.S $(sort $(dir $(LIB_ASMM_SOURCES)))
+
+$(BUILD_DIR)/%.o: %.c Makefile | $(LIB_OBJECTS)
+	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(LIB_OBJECTS)/$(notdir $(<:.c=.lst)) $< -o $@
+
+$(BUILD_DIR)/%.o: %.S Makefile | $(LIB_OBJECTS)
+	$(AS) -c $(CFLAGS) $< -o $@
+
+$(BUILD_DIR)/$(LIB_NAME).a: | $(LIB_OBJECTS) Makefile
+	$(AR) rcs $@ $(LIB_OBJECTS)
+	$(RL) $@
 
 #######################################
 # clean up
