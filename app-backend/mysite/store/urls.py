@@ -5,5 +5,5 @@ app_name = "store"
 
 urlpatterns = [
     # GET/POST /store/endpoint/
-    path("endpoint/", views.hello_json, name="endpoint"),
+    path("endpoint/", views.TimeSeriesEndpointView.as_view(), name="endpoint"),
 ]
