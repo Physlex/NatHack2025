@@ -20,4 +20,5 @@ rm "$ARCHIVE_NAME"
 
 echo "ARM GNU Toolchain installed successfully in $VENDOR_DIR/"
 echo "To use the toolchain, add the following to your PATH:"
-echo "export PATH=\"\$PATH:\$(pwd)/$VENDOR_DIR/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi/bin\""
+
+export PATH="$PATH:$(pwd)/$VENDOR_DIR/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi/bin"
