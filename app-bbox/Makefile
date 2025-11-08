@@ -85,6 +85,9 @@ Drivers/CMSIS/DSP/Source/TransformFunctions/TransformFunctions.c
 LIB_ASMM_SOURCES = \
 Drivers/CMSIS/DSP/Source/TransformFunctions/arm_bitreversal2.S
 
+LIB_TEST_C_SOURCES = \
+lib/test.c
+
 #######################################
 # binaries
 #######################################
@@ -174,11 +177,11 @@ LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BU
 
 # default action: build all
 .PHONY: all lib lib-test src
-all: src lib
+all: src
 
 lib: $(BUILD_DIR)/$(LIB_NAME).a
 
-lib-test: $(BUILD_DIR)/$(TARGET)-lib.elf
+lib-test: lib $(BUILD_DIR)/$(TARGET)-lib.elf $(BUILD_DIR)/$(TARGET)-lib.hex $(BUILD_DIR)/$(TARGET)-lib.bin
 
 src: lib $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
 
@@ -222,7 +225,7 @@ $(BUILD_DIR):
 #######################################
 # build the library
 #######################################
-
+# list of objects
 LIB_OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(LIB_C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(LIB_C_SOURCES)))
 LIB_OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(LIB_ASMM_SOURCES:.S=.o)))
@@ -237,6 +240,28 @@ $(BUILD_DIR)/%.o: %.S Makefile | $(LIB_OBJECTS)
 $(BUILD_DIR)/$(LIB_NAME).a: | $(LIB_OBJECTS) Makefile
 	$(AR) rcs $@ $(LIB_OBJECTS)
 	$(RL) $@
+
+
+#######################################
+# build the library test
+#######################################
+# list of objects
+LIB_TEST_OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(LIB_TEST_C_SOURCES:.c=.o)))
+vpath %.c $(sort $(dir $(LIB_TEST_C_SOURCES)))
+
+$(BUILD_DIR)/%.o: %.c Makefile | $(LIB_TEST_OBJECTS)
+	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
+
+$(BUILD_DIR)/$(TARGET)-lib.elf: $(LIB_TEST_OBJECTS) Makefile
+	$(CC) $(LIB_TEST_OBJECTS) $(LDFLAGS) -o $@
+	$(SZ) $@
+
+$(BUILD_DIR)/%-lib.hex: $(BUILD_DIR)/%-lib.elf | $(LIB_TEST_OBJECTS)
+	$(HEX) $< $@
+
+$(BUILD_DIR)/%-lib.bin: $(BUILD_DIR)/%-lib.elf | $(LIB_TEST_OBJECTS)
+	$(BIN) $< $@
+
 
 #######################################
 # clean up
