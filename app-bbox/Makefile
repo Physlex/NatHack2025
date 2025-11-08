@@ -40,24 +40,24 @@ src/main.c \
 src/stm32wbxx_it.c \
 src/stm32wbxx_hal_msp.c \
 Drivers/BSP/P-NUCLEO-WB55.Nucleo/stm32wbxx_nucleo.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_rcc.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_ll_rcc.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_rcc_ex.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_flash.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_flash_ex.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_gpio.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_hsem.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_dma.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_dma_ex.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_pwr.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_pwr_ex.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_cortex.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_exti.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_usart.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_usart_ex.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_uart_ex.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_uart.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_rcc.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_rcc.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_rcc_ex.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_flash.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_flash_ex.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_gpio.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_hsem.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_dma.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_dma_ex.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_pwr.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_pwr_ex.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_cortex.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_exti.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_usart.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_usart_ex.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_uart_ex.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_uart.c \
 src/system_stm32wbxx.c \
 src/sysmem.c \
 src/syscalls.c
@@ -125,8 +125,8 @@ AS_INCLUDES =
 # C includes
 C_INCLUDES =  \
 -Iinc \
--IDrivers/STM32WBxx_HAL_Driver/inc \
--IDrivers/STM32WBxx_HAL_Driver/inc/Legacy \
+-IDrivers/STM32WBxx_HAL_Driver/Inc \
+-IDrivers/STM32WBxx_HAL_Driver/Inc/Legacy \
 -IDrivers/BSP/P-NUCLEO-WB55.Nucleo \
 -IDrivers/CMSIS/Device/ST/STM32WBxx/Include \
 -IDrivers/CMSIS/Include
