@@ -10,7 +10,9 @@
 
 typedef enum ble_error {
     BLE_SUCCESS=0,
-    BLE_REQUIREMENTS
+    BLE_REQUIREMENTS,
+    BLE_ACTIVE,
+    BLE_OTHER
 } ble_error_kind;
 
 
@@ -34,7 +36,7 @@ extern int8_t ble_init(ble_pool_t *self);
 extern int8_t ble_swap_buffer(ble_pool_t *self);
 
 //! @note Fill the active buffer with data. (USED IN TEST ONLY)
-extern int8_t ble_fill_buffer(ble_pool_t *self);
+extern int8_t ble_fill_buffer(ble_pool_t *self, float32_t *data);
 
 //! @note Grab a reference to the currently active buffer.
 extern float32_t *ble_active_buffer(ble_pool_t *self);

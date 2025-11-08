@@ -1,14 +1,18 @@
 
 
 #include "main.h"
-#include "lib.h"
-#include "stm32wbxx_hal_rcc.h"
 
 #include <stdint.h>
+
+#include "stm32wbxx_hal_rcc.h"
+
+#include "spectral.h"
+#include "lib.h"
 
 
 COM_InitTypeDef BspCOMInit;
 static uint32_t delay = 250;
+static uint8_t transmitBuffer[sizeof(complex_t) * NPERSEG];
 
 void SystemClock_Config(void);
 void PeriphCommonClock_Config(void);
@@ -19,67 +23,101 @@ static void MX_GPIO_Init(void);
   * @retval int
   */
 int main(void) {
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+    HAL_Init();
 
-  /* Configure the system clock */
-  SystemClock_Config();
+    /* Configure the system clock */
+    SystemClock_Config();
 
-  /* Configure the peripherals common clocks */
-  PeriphCommonClock_Config();
+    /* Configure the peripherals common clocks */
+    PeriphCommonClock_Config();
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
+    /* Initialize all configured peripherals */
+    MX_GPIO_Init();
 
-  /* Initialize leds */
-  BSP_LED_Init(LED_BLUE);
-  BSP_LED_Init(LED_GREEN);
-  BSP_LED_Init(LED_RED);
+    /* Initialize leds */
+    BSP_LED_Init(LED_BLUE);
+    BSP_LED_Init(LED_GREEN);
+    BSP_LED_Init(LED_RED);
 
-  /* Initialize USER push-button, will be used to trigger an interrupt each time it's pressed.*/
-  BSP_PB_Init(BUTTON_SW1, BUTTON_MODE_EXTI);
-  BSP_PB_Init(BUTTON_SW2, BUTTON_MODE_EXTI);
-  BSP_PB_Init(BUTTON_SW3, BUTTON_MODE_EXTI);
+    /* Initialize USER push-button, will be used to trigger an interrupt each time it's pressed.*/
+    BSP_PB_Init(BUTTON_SW1, BUTTON_MODE_EXTI);
+    BSP_PB_Init(BUTTON_SW2, BUTTON_MODE_EXTI);
+    BSP_PB_Init(BUTTON_SW3, BUTTON_MODE_EXTI);
 
-  /* Initialize COM1 port (115200, 8 bits (7-bit data + 1 stop bit), no parity */
-  BspCOMInit.BaudRate   = 115200;
-  BspCOMInit.WordLength = COM_WORDLENGTH_8B;
-  BspCOMInit.StopBits   = COM_STOPBITS_1;
-  BspCOMInit.Parity     = COM_PARITY_NONE;
-  BspCOMInit.HwFlowCtl  = COM_HWCONTROL_NONE;
-  if (BSP_COM_Init(COM1, &BspCOMInit) != BSP_ERROR_NONE) {
-    Error_Handler();
-  }
+    /* Initialize COM1 port (115200, 8 bits (7-bit data + 1 stop bit), no parity */
+    BspCOMInit.BaudRate   = 115200;
+    BspCOMInit.WordLength = COM_WORDLENGTH_8B;
+    BspCOMInit.StopBits   = COM_STOPBITS_1;
+    BspCOMInit.Parity     = COM_PARITY_NONE;
+    BspCOMInit.HwFlowCtl  = COM_HWCONTROL_NONE;
+    if (BSP_COM_Init(COM1, &BspCOMInit) != BSP_ERROR_NONE) {
+        Error_Handler();
+    }
 
-  /* -- Sample board code to send message over COM1 port ---- */
-  printf("Welcome to STM32 world !\n\r");
+    /* -- Sample board code to send message over COM1 port ---- */
+    printf("Welcome to STM32 world !\n\r");
 
-  /* -- Sample board code to switch on leds ---- */
-  BSP_LED_On(LED_BLUE);
-  BSP_LED_On(LED_GREEN);
-  BSP_LED_On(LED_RED);
+    /* -- Sample board code to switch on leds ---- */
+    BSP_LED_Off(LED_BLUE);
+    BSP_LED_Off(LED_GREEN);
+    BSP_LED_Off(LED_RED);
 
-  while (1) {
-    fft_wrapper();
+    //! @note User code for BLE
 
-    /* -- Sample board code for User push-button in interrupt mode ---- */
-    BSP_LED_Toggle(LED_BLUE);
-    HAL_Delay(delay);
+    ble_pool_t ble_pool;
+    ble_init(&ble_pool);
 
-    BSP_LED_Toggle(LED_GREEN);
-    HAL_Delay(delay);
+    while (1) {
+        //! @note Buffer a batch of EEG data (two real signals)
 
-    BSP_LED_Toggle(LED_RED);
-    HAL_Delay(delay);
-  }
+        float32_t *data = 0;
+        const int8_t ble_ec = ble_fill_buffer(&ble_pool, data);
+        if (ble_ec < 0) {
+            printf("Failed to fill the ble buffer. Reason: %d\n", ble_ec);
+            break;
+        }
+
+        //! @note Process the batched data using the rfft.
+        const int8_t spec_res = spectral_rfft((complex_t *)transmitBuffer, data);
+        if (spec_res < 0) {
+            printf("Failed fourier transform on data\n");
+            break;
+        }
+
+        switch (spec_res) {
+            case SPEC_TRANSFORMED: {
+                //! @note Alert the system we can now do something with the transmit
+                //!       data.
+                break;
+            };
+
+            default: {
+                printf("spectral_rfft: Invalid state %d\n", spec_res);
+                break;
+            };
+        }
+    }
+
+    //! @note Error state for the Device.
+
+    while (1) {
+        BSP_LED_Toggle(LED_BLUE);
+        HAL_Delay(delay);
+
+        BSP_LED_Toggle(LED_GREEN);
+        HAL_Delay(delay);
+
+        BSP_LED_Toggle(LED_RED);
+        HAL_Delay(delay);
+    }
 }
 
 /**
   * @brief System Clock Configuration
   * @retval None
   */
-void SystemClock_Config(void)
-{
+void SystemClock_Config(void) {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
@@ -97,8 +135,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_10;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
     Error_Handler();
   }
 

@@ -27,21 +27,29 @@ int8_t ble_swap_buffer(ble_pool_t *self) {
 }
 
 
-int8_t ble_fill_buffer(ble_pool_t *self) {
+int8_t ble_fill_buffer(ble_pool_t *self, float32_t *data) {
     if (!self) {
         return -BLE_REQUIREMENTS;
     }
 
     //! @note Fill the active buffer.
 
-    float32_t *active = ble_active_buffer(self);
+    data = ble_active_buffer(self);
+    if (!data) {
+        return -BLE_ACTIVE;
+    }
 
     for (uint32_t i = 0; i < NPERSEG; ++i) {
-        active[i] = 1.f;
+        data[i] = 1.f;
     }
 
     //! @note Swap to the next empty buffer.
-    ble_swap_buffer(self);
+
+    if (ble_swap_buffer(self) < 0) {
+        return -BLE_OTHER;
+    }
+
+    return BLE_SUCCESS;
 }
 
 

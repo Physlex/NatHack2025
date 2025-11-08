@@ -13,7 +13,6 @@
 ######################################
 # target
 ######################################
-TARGET = STM32WB55RG
 TARGET = bbox
 
 
@@ -81,7 +80,14 @@ LIB_NAME = libdsp
 
 LIB_C_SOURCES = \
 lib/lib.c \
-Drivers/CMSIS/DSP/Source/TransformFunctions/TransformFunctions.c
+lib/ble.c \
+lib/spectral.c \
+$(wildcard Drivers/CMSIS/DSP/Source/CommonTables/*.c) \
+$(wildcard Drivers/CMSIS/DSP/Source/BasicMathFunctions/*.c) \
+$(wildcard Drivers/CMSIS/DSP/Source/ComplexMathFunctions/*.c) \
+$(wildcard Drivers/CMSIS/DSP/Source/TransformFunctions/*.c) \
+$(wildcard Drivers/CMSIS/DSP/Source/SupportFunctions/*.c)
+
 
 LIB_ASMM_SOURCES = \
 Drivers/CMSIS/DSP/Source/TransformFunctions/arm_bitreversal2.S

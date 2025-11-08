@@ -1,6 +1,7 @@
 #ifndef LIB_H
 #define LIB_H
 
-void fft_wrapper();
+#include "ble.h"
+
 
 #endif
