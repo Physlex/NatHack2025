@@ -9,8 +9,11 @@ export default function Home() {
   }
 
   return (
-    <div>
-      <h1>hello bbox</h1>
+    <div className="bg-offwhite w-screen min-h-lvh flex items-center justify-center">
+      <img src="/assets/images/background-lines-blue.png" className="fixed " />
+      <div className="z-10">
+        <h1>hello bbox</h1>
+      </div>
     </div>
   )
 }
