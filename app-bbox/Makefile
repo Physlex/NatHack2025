@@ -14,7 +14,7 @@
 # target
 ######################################
 TARGET = STM32WB55RG
-TARGET = bboxclear
+TARGET = bbox
 
 
 ######################################
@@ -146,12 +146,8 @@ C_INCLUDES =  \
 -IDrivers/STM32WBxx_HAL_Driver/Inc \
 -IDrivers/STM32WBxx_HAL_Driver/Inc/Legacy \
 -IDrivers/BSP/P-NUCLEO-WB55.Nucleo \
--IDrivers/CMSIS/Device/ST/STM32WBxx/Include \
 -IDrivers/CMSIS/DSP/Include \
 -IDrivers/CMSIS/Include
--IDrivers/CMSIS/Include \
--IDrivers/CMSIS/DSP/Include
-
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
