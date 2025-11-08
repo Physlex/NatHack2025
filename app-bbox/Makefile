@@ -182,8 +182,11 @@ LIBDIR = -L./build
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all
-.PHONY: all lib lib-test src
+.PHONY: all lib lib-test src upload
 all: src
+
+upload:
+	openocd
 
 lib: $(BUILD_DIR)/$(LIB_NAME).a
 

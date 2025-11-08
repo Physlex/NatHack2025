@@ -1,14 +1,9 @@
-
-
-#include "main.h"
-
 #include <stdint.h>
 
-#include "stm32wbxx_hal_rcc.h"
-
-#include "spectral.h"
+#include "main.h"
 #include "lib.h"
 
+#include "stm32wbxx_hal_rcc.h"
 
 COM_InitTypeDef BspCOMInit;
 static uint32_t delay = 250;
