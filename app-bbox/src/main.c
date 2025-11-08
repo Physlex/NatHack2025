@@ -3,21 +3,13 @@
 #include "main.h"
 #include "stm32wbxx_hal_rcc.h"
 
-#include <stdint.h>
-
-#include "stm32wbxx_hal_rcc.h"
-
-#include "spectral.h"
-#include "lib.h"
-
-
 COM_InitTypeDef BspCOMInit;
 static uint32_t delay = 250;
 static uint8_t transmitBuffer[sizeof(complex_t) * NPERSEG];
 
 UART_HandleTypeDef huart1;
-const uint8_t hello[] = "Hello World!";
-const uint16_t hello_len = sizeof(hello);
+const uint8_t hello[] = "Hello World!\n";
+const uint16_t hello_len = 14;
 
 void SystemClock_Config(void);
 void PeriphCommonClock_Config(void);
@@ -42,8 +34,10 @@ int main(void) {
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
+    MX_USART1_UART_Init();
 
     /* Initialize leds */
+
     BSP_LED_Init(LED_BLUE);
     BSP_LED_Init(LED_GREEN);
     BSP_LED_Init(LED_RED);
@@ -77,6 +71,7 @@ int main(void) {
     ble_init(&ble_pool);
 
     while (1) {
+        HAL_UART_Transmit(&huart1, (uint8_t *)hello, hello_len, 0xFFFF);
         //! @note Buffer a batch of EEG data (two real signals)
 
         float32_t *data = 0;
@@ -197,9 +192,9 @@ static void MX_GPIO_Init(void)
   /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
 
   /*Configure GPIO pins : USB_DM_Pin USB_DP_Pin */
   GPIO_InitStruct.Pin = USB_DM_Pin|USB_DP_Pin;
