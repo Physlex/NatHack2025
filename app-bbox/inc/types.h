@@ -14,6 +14,10 @@
 
 typedef float float32_t;
 typedef double float64_t;
+typedef struct complex {
+    float32_t real;
+    float32_t imag;
+} complex_t;
 
 
 #endif  // DSP_BB_TYPES_HPP_
