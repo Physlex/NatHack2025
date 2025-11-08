@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'store',
+    'django.contrib.postgres',
 ]
 
 MIDDLEWARE = [
@@ -75,10 +78,20 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'mysite',
+        'USER': 'postgres',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',  # if Django runs in docker-compose, set to 'db'
+        'PORT': '5432',
     }
+
 }
+
+# Note: the TimescaleDB extension must be installed on the Postgres server.
+# If using the provided docker-compose Timescale image, start it with `docker compose up -d`
+# then either run `CREATE EXTENSION IF NOT EXISTS timescaledb;` in that DB or keep the
+# migration that runs that SQL (requires superuser).
 
 
 # Password validation
