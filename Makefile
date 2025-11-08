@@ -1,1 +1,0 @@
-include ./app-bbox/Makefile
