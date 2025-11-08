@@ -14,6 +14,7 @@
 # target
 ######################################
 TARGET = STM32WB55RG
+TARGET = bboxclear
 
 
 ######################################
@@ -29,7 +30,7 @@ OPT = -Og
 # paths
 #######################################
 # Build path
-BUILD_DIR = build
+BUILD_DIR = ../build
 
 ######################################
 # source
@@ -148,6 +149,8 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Device/ST/STM32WBxx/Include \
 -IDrivers/CMSIS/DSP/Include \
 -IDrivers/CMSIS/Include
+-IDrivers/CMSIS/Include \
+-IDrivers/CMSIS/DSP/Include
 
 
 # compile gcc flags
