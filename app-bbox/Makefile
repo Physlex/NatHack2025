@@ -36,10 +36,7 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
-src/main.c \
-src/bbox_ble.c \
-src/stm32wbxx_it.c \
-src/stm32wbxx_hal_msp.c \
+$(wildcard src/*.c) \
 Drivers/BSP/P-NUCLEO-WB55.Nucleo/stm32wbxx_nucleo.c \
 Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_rcc.c \
 Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_rcc.c \
@@ -60,9 +57,10 @@ Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_usart_ex.c \
 Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_uart_ex.c \
 Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_uart.c \
 $(wildcard MiddleWares/ST/STM32_WPAN/ble/core/auto/*.c) \
-src/system_stm32wbxx.c \
-src/sysmem.c \
-src/syscalls.c
+$(wildcard MiddleWares/ST/STM32_WPAN/interface/patterns/ble_thread/tl/*.c) \
+$(wildcard MiddleWares/ST/STM32_WPAN/utilities/*.c) \
+$(wildcard Middlewares/ST/STM32_WPAN/interface/patterns/ble_thread/shci/*.c) \
+
 
 # ASM sources
 ASM_SOURCES =  \
@@ -159,7 +157,11 @@ C_INCLUDES =  \
 -IMiddlewares/ST/STM32_WPAN/ble/core/auto/ \
 -IMiddlewares/ST/STM32_WPAN/ble/core \
 -IMiddlewares/ST/STM32_WPAN/ble \
--IMiddlewares/ST/STM32_WPAN/interface/patterns/ble_thread
+-IMiddlewares/ST/STM32_WPAN/interface/patterns/ble_thread \
+-IMiddlewares/ST/STM32_WPAN/interface/patterns/ble_thread/tl \
+-IMiddlewares/ST/STM32_WPAN/interface/patterns/ble_thread/shci \
+-IMiddlewares/ST/STM32_WPAN/utilities \
+-IMiddlewares/ST/STM32_WPAN/
 
 
 # compile gcc flags

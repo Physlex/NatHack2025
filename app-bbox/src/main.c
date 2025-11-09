@@ -2,26 +2,45 @@
 
 #include <stdint.h>
 
+#include "stm32wb55xx.h"
+#include "stm32wbxx_hal_rtc.h"
 #include "stm32wbxx_hal_rcc.h"
+#include "stm32wbxx_hal_conf.h"
+#include "app_debug.h"
 
 #include "lib.h"
 #include "bbox_ble.h"
+#include "cpu2.h"
 
+
+//! @note Application definitions.
+
+#define APP_FLAG_CPU2_INITIALIZED           0
+#define APP_FLAG_WIRELESS_FW_RUNNING        1
+
+//! @note Data for the application.
 
 COM_InitTypeDef BspCOMInit;
 static uint32_t delay = 250;
 static uint8_t transmitBuffer[sizeof(complex_t) * NPERSEG];
 
+static volatile uint32_t APP_State = 0x00000000;
+
 UART_HandleTypeDef huart1;
 const uint8_t hello[] = "Hello World!\n";
 const uint16_t hello_len = 14;
 
+
+//! @note Function definitions.
+
 void SystemClock_Config(void);
+
 void PeriphCommonClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 
-/* #define PUTCHAR_PROTOTYPE int __io_putchar(int ch) */
+static void SYS_ProcessEvent(void);
+
 
 /**
   * @brief  The application entry point.
@@ -47,11 +66,30 @@ int main(void) {
     BSP_LED_Init(LED_GREEN);
     BSP_LED_Init(LED_RED);
 
-    /* Initialize USER push-button, will be used to trigger an interrupt each time it's pressed.*/
-    BSP_PB_Init(BUTTON_SW1, BUTTON_MODE_EXTI);
-    BSP_PB_Init(BUTTON_SW2, BUTTON_MODE_EXTI);
-    BSP_PB_Init(BUTTON_SW3, BUTTON_MODE_EXTI);
+    /* Initialize all transport layers */
+    CPU2_Init();
+    
+    /* Set the red LED On to indicate that the CPU2 is initializing */
+    BSP_LED_On(LED_RED); 
+    
+    /* Wait until the CPU2 gets initialized */
+    while( 
+        (CPU2_BB_FLAG_GET(APP_State, APP_FLAG_CPU2_INITIALIZED) == 0) ||
+        (CPU2_BB_FLAG_GET(APP_State, APP_FLAG_WIRELESS_FW_RUNNING) == 0)
+    ) {
+      /* Process pending SYSTEM event coming from CPU2 (if any) */
+      SYS_ProcessEvent();
+    }
 
+    /* Configure the CPU2 Debug (Optional) */
+    APPD_EnableCPU2();
+
+    /* Set the red LED Off to indicate that the CPU2 is initialized */
+    BSP_LED_Off(LED_RED);
+
+    /* Set the green LED On to indicate that the wireless stack FW is running */
+    BSP_LED_On(LED_GREEN);
+    
     /* Initialize COM1 port (115200, 8 bits (7-bit data + 1 stop bit), no parity */
     BspCOMInit.BaudRate   = 115200;
     BspCOMInit.WordLength = COM_WORDLENGTH_8B;
@@ -119,6 +157,19 @@ int main(void) {
         BSP_LED_Toggle(LED_RED);
         HAL_Delay(delay);
     }
+}
+
+
+/**
+ * @brief This function is used to process all events coming from BLE stack by executing the related callback
+ * @param None
+ * @retval None
+ */
+static void SYS_ProcessEvent(void) {
+  if (APP_FLAG_GET(APP_FLAG_SHCI_EVENT_PENDING) == 1) {
+    APP_FLAG_RESET(APP_FLAG_SHCI_EVENT_PENDING);
+    shci_user_evt_proc();
+  }
 }
 
 /**
