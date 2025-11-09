@@ -2,11 +2,14 @@ import { FaFile } from "react-icons/fa6";
 import { FaEye } from "react-icons/fa";
 import { Button } from "flowbite-react";
 import { FaTrash } from "react-icons/fa6";
+import { useNavigate } from "react-router-dom";
 
 export default function RecordingListItem({ recording }) {
+  const navigate = useNavigate();
   return (
     <div
-      className="flex flex-row items-center px-4 hover:bg-gray-100 rounded-lg cursor-pointer justify-between transition-all duration-200"
+      className="flex flex-row items-center px-4 hover:bg-neutral-100 rounded-lg cursor-pointer justify-between transition-all duration-200"
+      onClick={() => navigate(`/recording/${recording.id}`)}
     >
       <div className="flex flex-row items-center">
         <FaFile className="text-4xl text-gray-500 mr-4" />
