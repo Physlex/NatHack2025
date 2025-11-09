@@ -12,14 +12,13 @@
 #include "lib.h"
 #include "bbox_ble.h"
 #include "cpu2.h"
-#include"fram.h"
+#include "fram.h"
 
 #include "sys/panic.h"
 
 
 //! @note Application definitions.
 //! @note Data for the application.
-
 
 COM_InitTypeDef BspCOMInit;
 static uint32_t delay = 250;
@@ -38,6 +37,7 @@ const uint16_t hello_len = 13;
 void SystemClock_Config(void);
 void BlinkNTimes(int n);
 
+static void SYS_ProcessEvent(void);
 void PeriphCommonClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
@@ -59,10 +59,6 @@ int main(void) {
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    MX_USART1_UART_Init();
-    if (BSP_COM_Init(COM1, &BspCOMInit) != BSP_ERROR_NONE) {
-        Error_Handler();
-    }
 
     /* Initialize leds */
 
@@ -70,26 +66,30 @@ int main(void) {
     BSP_LED_Init(LED_GREEN);
     BSP_LED_Init(LED_RED);
 
-    /* Initialize all transport layers */
-    CPU2_Init();
+    // Initialize all transport layers
+    // CPU2_Init();
 
     /* Set the red LED On to indicate that the CPU2 is initializing */
-    BSP_LED_On(LED_RED);
+    // BSP_LED_On(LED_RED);
+
+    // BSP_LED_On(LED_RED);
 
     /* Wait until the CPU2 gets initialized */
-    while(
-        (CPU2_BB_FLAG_GET(APP_State, APP_FLAG_CPU2_INITIALIZED) == 0) ||
-        (CPU2_BB_FLAG_GET(APP_State, APP_FLAG_WIRELESS_FW_RUNNING) == 0)
-    ) {
-      /* Process pending SYSTEM event coming from CPU2 (if any) */
-      BSP_LED_Toggle(LED_BLUE);
-      /* HAL_Delay(delay); */
-      /* SYS_ProcessEvent(); */
-      /* HAL_Delay(delay); */
-      BSP_LED_Toggle(LED_BLUE);
-      /* HAL_Delay(delay); */
-    }
+    // while(
+    //     (CPU2_BB_FLAG_GET(APP_State, APP_FLAG_CPU2_INITIALIZED) == 0) ||
+    //     (CPU2_BB_FLAG_GET(APP_State, APP_FLAG_WIRELESS_FW_RUNNING) == 0)
+    // ) {
+    //   /* Process pending SYSTEM event coming from CPU2 (if any) */
+    //   SYS_ProcessEvent();
+    //   BSP_LED_Toggle(LED_BLUE);
+    //   /* HAL_Delay(delay); */
+    //   /* SYS_ProcessEvent(); */
+    //   /* HAL_Delay(delay); */
+    //   BSP_LED_Toggle(LED_BLUE);
+    //   /* HAL_Delay(delay); */
+    // }
 
+    BSP_LED_On(LED_RED);
     /* Configure the CPU2 Debug (Optional) */
     /* APPD_EnableCPU2(); */
 
@@ -100,6 +100,11 @@ int main(void) {
     BSP_LED_On(LED_GREEN);
 
     /* Initialize COM port */
+    BspCOMInit.BaudRate   = 9600;
+    BspCOMInit.WordLength = COM_WORDLENGTH_8B;
+    BspCOMInit.StopBits   = COM_STOPBITS_1;
+    BspCOMInit.Parity     = COM_PARITY_NONE;
+    BspCOMInit.HwFlowCtl  = COM_HWCONTROL_NONE;
     if (BSP_COM_Init(COM1, &BspCOMInit) != BSP_ERROR_NONE) {
         Error_Handler();
     }
@@ -141,6 +146,7 @@ int main(void) {
             case SPEC_TRANSFORMED: {
                 //! @note Alert the system we can now do something with the transmit
                 //!       data.
+                /* fram_save(transmitBuffer, sizeof(complex_t) * NPERSEG); */
                 break;
             };
 
@@ -151,9 +157,9 @@ int main(void) {
         }
     }
 
-    //! @note Error state for the Device.
     Error_Handler();
 }
+
 
 /**
   * @brief System Clock Configuration

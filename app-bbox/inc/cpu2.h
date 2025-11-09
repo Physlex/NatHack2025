@@ -22,7 +22,6 @@
 #define CPU2_BB_FLAG_SET(state, flag) VariableBit_Set_BB(((uint32_t)&state), flag)
 #define CPU2_BB_FLAG_RESET(state, flag) VariableBit_Reset_BB(((uint32_t)&state), flag)
 
-
 /**
  * @brief This function initializes and releases the CPU2 subsystem
  * @param None
