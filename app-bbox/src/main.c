@@ -6,6 +6,7 @@
 #include "stm32wbxx_hal_rtc.h"
 #include "stm32wbxx_hal_rcc.h"
 #include "stm32wbxx_hal_conf.h"
+#include "shci_tl.h"
 #include "app_debug.h"
 
 #include "lib.h"
@@ -15,8 +16,32 @@
 
 //! @note Application definitions.
 
-#define APP_FLAG_CPU2_INITIALIZED           0
-#define APP_FLAG_WIRELESS_FW_RUNNING        1
+#define APP_FLAG_CPU2_INITIALIZED          0
+#define APP_FLAG_WIRELESS_FW_RUNNING       1
+#define APP_FLAG_FUS_FW_RUNNING            2
+#define APP_FLAG_BLE_INITIALIZED           3
+#define APP_FLAG_BLE_ADVERTISING           4
+#define APP_FLAG_BLE_CONNECTED             5
+#define APP_UNKNOWN_6                      6
+#define APP_UNKNOWN_7                      7
+#define APP_UNKNOWN_8                      8
+#define APP_UNKNOWN_9                      9
+#define APP_UNKNOWN_10                     10
+#define APP_UNKNOWN_11                     11
+#define APP_UNKNOWN_12                     12
+#define APP_UNKNOWN_13                     13
+#define APP_UNKNOWN_14                     14
+#define APP_UNKNOWN_15                     15
+#define APP_UNKNOWN_16                     16
+#define APP_UNKNOWN_17                     17
+#define APP_FLAG_HCI_EVENT_PENDING         18
+#define APP_FLAG_SHCI_EVENT_PENDING        19
+#define APP_FLAG_CPU2_ERROR                24
+#define APP_FLAG_BLE_INITIALIZATION_ERROR  25
+#define APP_FLAG_GET(flag)      VariableBit_Get_BB(((uint32_t)&APP_State), flag)
+#define APP_FLAG_SET(flag)      VariableBit_Set_BB(((uint32_t)&APP_State), flag)
+#define APP_FLAG_RESET(flag)    VariableBit_Reset_BB(((uint32_t)&APP_State), flag)
+
 
 //! @note Data for the application.
 
@@ -47,7 +72,7 @@ void PeriphCommonClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 
-static void SYS_ProcessEvent(void);
+static void SYS_ProcessEvent(void);  // see handl_cpu2_event.c
 
 
 /**
@@ -90,7 +115,12 @@ int main(void) {
         (CPU2_BB_FLAG_GET(APP_State, APP_FLAG_WIRELESS_FW_RUNNING) == 0)
     ) {
       /* Process pending SYSTEM event coming from CPU2 (if any) */
+      BSP_LED_Toggle(LED_BLUE);
+      HAL_Delay(delay);
       SYS_ProcessEvent();
+      HAL_Delay(delay);
+      BSP_LED_Toggle(LED_BLUE);
+      HAL_Delay(delay);
     }
 
     /* Configure the CPU2 Debug (Optional) */
@@ -102,12 +132,7 @@ int main(void) {
     /* Set the green LED On to indicate that the wireless stack FW is running */
     BSP_LED_On(LED_GREEN);
 
-    /* Initialize COM1 port (115200, 8 bits (7-bit data + 1 stop bit), no parity */
-    BspCOMInit.BaudRate   = 115200;
-    BspCOMInit.WordLength = COM_WORDLENGTH_8B;
-    BspCOMInit.StopBits   = COM_STOPBITS_1;
-    BspCOMInit.Parity     = COM_PARITY_NONE;
-    BspCOMInit.HwFlowCtl  = COM_HWCONTROL_NONE;
+    /* Initialize COM port */
     if (BSP_COM_Init(COM1, &BspCOMInit) != BSP_ERROR_NONE) {
         Error_Handler();
     }
@@ -118,6 +143,7 @@ int main(void) {
     BSP_PB_Init(BUTTON_SW3, BUTTON_MODE_EXTI);
 
     /* -- Sample board code to send message over COM1 port ---- */
+    printf("Hello STM!\n");
 
     /* -- Sample board code to switch on leds ---- */
     BSP_LED_Off(LED_BLUE);
@@ -166,19 +192,6 @@ int main(void) {
     //! @note Error state for the Device.
     Error_Handler();
 
-}
-
-
-/**
- * @brief This function is used to process all events coming from BLE stack by executing the related callback
- * @param None
- * @retval None
- */
-static void SYS_ProcessEvent(void) {
-  /* if (APP_FLAG_GET(APP_FLAG_SHCI_EVENT_PENDING) == 1) { */
-  /*   APP_FLAG_RESET(APP_FLAG_SHCI_EVENT_PENDING); */
-  /*   shci_user_evt_proc(); */
-  /* } */
 }
 
 /**
@@ -372,7 +385,99 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   }
 }
 
+void BlinkNTimes(int n) {
+    for (int i = 0; i < n; i++) {
+        BSP_LED_Toggle(LED_GREEN);
+        HAL_Delay(delay);
+        BSP_LED_Toggle(LED_GREEN);
+        HAL_Delay(delay);
+    }
+}
 
+
+/**
+ * @brief This function is used to process all events coming from BLE stack by executing the related callback
+ * @param None
+ * @retval None
+ */
+static void SYS_ProcessEvent(void) {
+  /* Process errors first - highest priority */
+  if (APP_FLAG_GET(APP_FLAG_CPU2_ERROR) == 1) {
+    APP_FLAG_RESET(APP_FLAG_CPU2_ERROR);
+    BlinkNTimes(1);
+  } else if (APP_FLAG_GET(APP_FLAG_BLE_INITIALIZATION_ERROR) == 1) {
+    APP_FLAG_RESET(APP_FLAG_BLE_INITIALIZATION_ERROR);
+    BlinkNTimes(2);
+  }
+  /* Process pending events - high priority */
+  else if (APP_FLAG_GET(APP_FLAG_SHCI_EVENT_PENDING) == 1) {
+    APP_FLAG_RESET(APP_FLAG_SHCI_EVENT_PENDING);
+    BlinkNTimes(3);
+    shci_user_evt_proc();
+  } else if (APP_FLAG_GET(APP_FLAG_HCI_EVENT_PENDING) == 1) {
+    APP_FLAG_RESET(APP_FLAG_HCI_EVENT_PENDING);
+    BlinkNTimes(4);
+    /* hci_user_evt_proc(); */
+  }
+  /* Process initialization and state changes - normal priority */
+  else if (APP_FLAG_GET(APP_FLAG_CPU2_INITIALIZED) == 1) {
+    APP_FLAG_RESET(APP_FLAG_CPU2_INITIALIZED);
+    BlinkNTimes(5);
+  } else if (APP_FLAG_GET(APP_FLAG_FUS_FW_RUNNING) == 1) {
+    APP_FLAG_RESET(APP_FLAG_FUS_FW_RUNNING);
+    BlinkNTimes(6);
+  } else if (APP_FLAG_GET(APP_FLAG_WIRELESS_FW_RUNNING) == 1) {
+    APP_FLAG_RESET(APP_FLAG_WIRELESS_FW_RUNNING);
+    BlinkNTimes(7);
+  } else if (APP_FLAG_GET(APP_FLAG_BLE_INITIALIZED) == 1) {
+    APP_FLAG_RESET(APP_FLAG_BLE_INITIALIZED);
+    BlinkNTimes(8);
+  } else if (APP_FLAG_GET(APP_FLAG_BLE_ADVERTISING) == 1) {
+    APP_FLAG_RESET(APP_FLAG_BLE_ADVERTISING);
+    BlinkNTimes(9);
+  } else if (APP_FLAG_GET(APP_FLAG_BLE_CONNECTED) == 1) {
+    APP_FLAG_RESET(APP_FLAG_BLE_CONNECTED);
+    BlinkNTimes(10);
+  }
+  /* Process unknown flags */
+  else if (APP_FLAG_GET(APP_UNKNOWN_6) == 1) {
+    APP_FLAG_RESET(APP_UNKNOWN_6);
+    BlinkNTimes(11);
+  } else if (APP_FLAG_GET(APP_UNKNOWN_7) == 1) {
+    APP_FLAG_RESET(APP_UNKNOWN_7);
+    BlinkNTimes(12);
+  } else if (APP_FLAG_GET(APP_UNKNOWN_8) == 1) {
+    APP_FLAG_RESET(APP_UNKNOWN_8);
+    BlinkNTimes(13);
+  } else if (APP_FLAG_GET(APP_UNKNOWN_9) == 1) {
+    APP_FLAG_RESET(APP_UNKNOWN_9);
+    BlinkNTimes(14);
+  } else if (APP_FLAG_GET(APP_UNKNOWN_10) == 1) {
+    APP_FLAG_RESET(APP_UNKNOWN_10);
+    BlinkNTimes(15);
+  } else if (APP_FLAG_GET(APP_UNKNOWN_11) == 1) {
+    APP_FLAG_RESET(APP_UNKNOWN_11);
+    BlinkNTimes(16);
+  } else if (APP_FLAG_GET(APP_UNKNOWN_12) == 1) {
+    APP_FLAG_RESET(APP_UNKNOWN_12);
+    BlinkNTimes(17);
+  } else if (APP_FLAG_GET(APP_UNKNOWN_13) == 1) {
+    APP_FLAG_RESET(APP_UNKNOWN_13);
+    BlinkNTimes(18);
+  } else if (APP_FLAG_GET(APP_UNKNOWN_14) == 1) {
+    APP_FLAG_RESET(APP_UNKNOWN_14);
+    BlinkNTimes(19);
+  } else if (APP_FLAG_GET(APP_UNKNOWN_15) == 1) {
+    APP_FLAG_RESET(APP_UNKNOWN_15);
+    BlinkNTimes(20);
+  } else if (APP_FLAG_GET(APP_UNKNOWN_16) == 1) {
+    APP_FLAG_RESET(APP_UNKNOWN_16);
+    BlinkNTimes(21);
+  } else if (APP_FLAG_GET(APP_UNKNOWN_17) == 1) {
+    APP_FLAG_RESET(APP_UNKNOWN_17);
+    BlinkNTimes(22);
+  }
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.

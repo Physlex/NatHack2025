@@ -40,7 +40,7 @@
 
 /**
  * Radio activity event
- */   
+ */
 #define CFG_RADIO_ACTIVITY_EVENT_MASK      (0x0006)  /**< 0x0000 default */
 
 /**
@@ -136,7 +136,7 @@
  * Some information for Low speed clock mapped in bits field
  * - bit 0:   1: Calibration for the RF system wakeup clock source   0: No calibration for the RF system wakeup clock source
  * - bit 1:   1: STM32WB5M Module device                             0: Other devices as STM32WBxx SOC, STM32WB1M module
- * - bit 2:   1: HSE/1024 Clock config                               0: LSE Clock config   
+ * - bit 2:   1: HSE/1024 Clock config                               0: LSE Clock config
  */
 #if defined(STM32WB5Mxx)
   #define CFG_BLE_LS_SOURCE  (SHCI_C2_BLE_INIT_CFG_BLE_LS_NOCALIB | SHCI_C2_BLE_INIT_CFG_BLE_LS_MOD5MM_DEV | SHCI_C2_BLE_INIT_CFG_BLE_LS_CLK_LSE)
@@ -173,7 +173,7 @@
  * - SHCI_C2_BLE_INIT_OPTIONS_NO_EXT_ADV
  * - SHCI_C2_BLE_INIT_OPTIONS_CS_ALGO2
  * - SHCI_C2_BLE_INIT_OPTIONS_NO_CS_ALGO2
- * - SHCI_C2_BLE_INIT_OPTIONS_REDUC_GATTDB_NVM 
+ * - SHCI_C2_BLE_INIT_OPTIONS_REDUC_GATTDB_NVM
  * - SHCI_C2_BLE_INIT_OPTIONS_FULL_GATTDB_NVM
  * - SHCI_C2_BLE_INIT_OPTIONS_GATT_CACHING_USED
  * - SHCI_C2_BLE_INIT_OPTIONS_GATT_CACHING_NOTUSED
@@ -190,8 +190,8 @@
  *          0: extended advertizing not supported
  * (bit 4): 1: CS Algo #2 supported
  *          0: CS Algo #2 not supported
- * (bit 5): 1: Reduced GATT database in NVM 
- *          0: Full GATT database in NVM 
+ * (bit 5): 1: Reduced GATT database in NVM
+ *          0: Full GATT database in NVM
  * (bit 6): 1: GATT caching is used
  *          0: GATT caching is not used
  * (bit 7): 1: LE Power Class 1
@@ -218,7 +218,7 @@
 
 #define CFG_BLE_MAX_COC_INITIATOR_NBR   (32)
 
-#define CFG_BLE_MIN_TX_POWER            (-40) 
+#define CFG_BLE_MIN_TX_POWER            (-40)
 
 #define CFG_BLE_MAX_TX_POWER            (6)
 
@@ -226,15 +226,15 @@
 * BLE stack Maximum number of created Enhanced ATT bearers to be configured
 * in addition to the number of links
 *     - Range: 0 .. 4
-*/ 
+*/
 #define CFG_BLE_MAX_ADD_EATT_BEARERS    (4)
-         
+
 
 
 /**
  * BLE Rx model configuration flags to be configured with:
  * - SHCI_C2_BLE_INIT_RX_MODEL_AGC_RSSI_LEGACY
- * - SHCI_C2_BLE_INIT_RX_MODEL_AGC_RSSI_BLOCKER 
+ * - SHCI_C2_BLE_INIT_RX_MODEL_AGC_RSSI_BLOCKER
 * which are used to set following configuration bits:
  * (bit 0): 1: agc_rssi model improved vs RF blockers
  *          0: Legacy agc_rssi model
@@ -245,27 +245,27 @@
 
 /* Maximum number of advertising sets.
  * Range: 1 .. 8 with limitation:
- * This parameter is linked to CFG_BLE_MAX_ADV_DATA_LEN such as both compliant with allocated Total memory computed with BLE_EXT_ADV_BUFFER_SIZE based 
+ * This parameter is linked to CFG_BLE_MAX_ADV_DATA_LEN such as both compliant with allocated Total memory computed with BLE_EXT_ADV_BUFFER_SIZE based
  * on Max Extended advertising configuration supported.
  * This parameter is considered by the CPU2 when CFG_BLE_OPTIONS has SHCI_C2_BLE_INIT_OPTIONS_EXT_ADV flag set
- */   
+ */
 
 #define CFG_BLE_MAX_ADV_SET_NBR     (3)
 
  /* Maximum advertising data length (in bytes)
  * Range: 31 .. 1650 with limitation:
- * This parameter is linked to CFG_BLE_MAX_ADV_SET_NBR such as both compliant with allocated Total memory computed with BLE_EXT_ADV_BUFFER_SIZE based 
+ * This parameter is linked to CFG_BLE_MAX_ADV_SET_NBR such as both compliant with allocated Total memory computed with BLE_EXT_ADV_BUFFER_SIZE based
  * on Max Extended advertising configuration supported.
  * This parameter is considered by the CPU2 when CFG_BLE_OPTIONS has SHCI_C2_BLE_INIT_OPTIONS_EXT_ADV flag set
- */ 
- 
-#define CFG_BLE_MAX_ADV_DATA_LEN    (1650) 
- 
+ */
+
+#define CFG_BLE_MAX_ADV_DATA_LEN    (1650)
+
  /* RF TX Path Compensation Value (16-bit signed integer). Units: 0.1 dB.
   * Range: -1280 .. 1280
   */
 
-#define CFG_BLE_TX_PATH_COMPENS    (0) 
+#define CFG_BLE_TX_PATH_COMPENS    (0)
 
  /* RF RX Path Compensation Value (16-bit signed integer). Units: 0.1 dB.
   * Range: -1280 .. 1280
@@ -279,10 +279,10 @@
    * - SHCI_C2_BLE_INIT_BLE_CORE_5_4
    * which are used to set: 11(5.2), 12(5.3), 13(5.4).
    */
-   
+
 #define CFG_BLE_CORE_VERSION   (SHCI_C2_BLE_INIT_BLE_CORE_5_4)
- 
-  
+
+
 
 /******************************************************************************
  * Transport Layer
@@ -340,4 +340,15 @@
 
 #define CFG_OTP_END_ADRESS      OTP_AREA_END_ADDR
 
+/******************************************************************************
+ * OTP manager
+ ******************************************************************************/
+#define UTILS_ENTER_CRITICAL_SECTION( )   uint32_t primask_bit = __get_PRIMASK( );\
+                                          __disable_irq( )
+
+#define UTILS_EXIT_CRITICAL_SECTION( )          __set_PRIMASK( primask_bit )
+
+#define UTILS_MEMSET8( dest, value, size )      memset( dest, value, size);
+
 #endif /* APP_CONF_H */
+
