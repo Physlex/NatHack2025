@@ -1,7 +1,5 @@
 #include "bbox_ble.h"
 
-#include "ble.h"
-
 
 static float32_t ble_double_buffer[(NPERSEG << 1)];
 

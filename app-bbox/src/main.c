@@ -1,7 +1,12 @@
-#include <stdint.h>
-#include "lib.h"
 #include "main.h"
+
+#include <stdint.h>
+
 #include "stm32wbxx_hal_rcc.h"
+
+#include "lib.h"
+#include "bbox_ble.h"
+
 
 COM_InitTypeDef BspCOMInit;
 static uint32_t delay = 250;
