@@ -1,7 +1,11 @@
 #include <stdint.h>
 #include "lib.h"
+
 #include "main.h"
 #include "stm32wbxx_hal_rcc.h"
+
+#include"fram.h"
+
 
 COM_InitTypeDef BspCOMInit;
 static uint32_t delay = 250;
@@ -92,6 +96,7 @@ int main(void) {
             case SPEC_TRANSFORMED: {
                 //! @note Alert the system we can now do something with the transmit
                 //!       data.
+                fram_save(transmitBuffer, sizeof(complex_t) * NPERSEG);
                 break;
             };
 

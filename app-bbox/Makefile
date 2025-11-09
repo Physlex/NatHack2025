@@ -39,6 +39,8 @@ C_SOURCES =  \
 src/main.c \
 src/stm32wbxx_it.c \
 src/stm32wbxx_hal_msp.c \
+src/fram.c \
+src/ring.c \
 Drivers/BSP/P-NUCLEO-WB55.Nucleo/stm32wbxx_nucleo.c \
 Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_rcc.c \
 Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_rcc.c \
