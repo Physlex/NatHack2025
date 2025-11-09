@@ -56,9 +56,9 @@ Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_usart.c \
 Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_usart_ex.c \
 Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_uart_ex.c \
 Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_uart.c \
-$(wildcard MiddleWares/ST/STM32_WPAN/ble/core/auto/*.c) \
-$(wildcard MiddleWares/ST/STM32_WPAN/interface/patterns/ble_thread/tl/*.c) \
-$(wildcard MiddleWares/ST/STM32_WPAN/utilities/*.c) \
+$(wildcard Middlewares/ST/STM32_WPAN/ble/core/auto/*.c) \
+$(wildcard Middlewares/ST/STM32_WPAN/interface/patterns/ble_thread/tl/*.c) \
+$(wildcard Middlewares/ST/STM32_WPAN/utilities/*.c) \
 $(wildcard Middlewares/ST/STM32_WPAN/interface/patterns/ble_thread/shci/*.c) \
 
 
@@ -155,6 +155,7 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Include \
 -IDrivers/CMSIS/Device/ST/STM32WBxx/Include \
 -IMiddlewares/ST/STM32_WPAN/ble/core/auto/ \
+-IMiddlewares/ST/STM32_WPAN/ble/core/template/ \
 -IMiddlewares/ST/STM32_WPAN/ble/core \
 -IMiddlewares/ST/STM32_WPAN/ble \
 -IMiddlewares/ST/STM32_WPAN/interface/patterns/ble_thread \

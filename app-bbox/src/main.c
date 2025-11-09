@@ -80,12 +80,12 @@ int main(void) {
 
     /* Initialize all transport layers */
     CPU2_Init();
-    
+
     /* Set the red LED On to indicate that the CPU2 is initializing */
-    BSP_LED_On(LED_RED); 
-    
+    BSP_LED_On(LED_RED);
+
     /* Wait until the CPU2 gets initialized */
-    while( 
+    while(
         (CPU2_BB_FLAG_GET(APP_State, APP_FLAG_CPU2_INITIALIZED) == 0) ||
         (CPU2_BB_FLAG_GET(APP_State, APP_FLAG_WIRELESS_FW_RUNNING) == 0)
     ) {
@@ -101,7 +101,7 @@ int main(void) {
 
     /* Set the green LED On to indicate that the wireless stack FW is running */
     BSP_LED_On(LED_GREEN);
-    
+
     /* Initialize COM1 port (115200, 8 bits (7-bit data + 1 stop bit), no parity */
     BspCOMInit.BaudRate   = 115200;
     BspCOMInit.WordLength = COM_WORDLENGTH_8B;
@@ -135,19 +135,19 @@ int main(void) {
         HAL_Delay(delay);
         //! @note Buffer a batch of EEG data (two real signals)
 
-        //float32_t *data = 0;
-        //const int8_t ble_ec = ble_fill_buffer(&ble_pool, data);
-        //if (ble_ec < 0) {
-        //    printf("Failed to fill the ble buffer. Reason: %d\n", ble_ec);
-        //    break;
-        //}
+        float32_t *data = 0;
+        const int8_t ble_ec = ble_fill_buffer(&ble_pool, data);
+        if (ble_ec < 0) {
+            printf("Failed to fill the ble buffer. Reason: %d\n", ble_ec);
+            break;
+        }
 
         ////! @note Process the batched data using the rfft.
-        //const int8_t spec_res = spectral_rfft((complex_t *)transmitBuffer, data);
-        //if (spec_res < 0) {
-        //    printf("Failed fourier transform on data\n");
-        //    break;
-        //}
+        const int8_t spec_res = spectral_rfft((complex_t *)transmitBuffer, data);
+        if (spec_res < 0) {
+            printf("Failed fourier transform on data\n");
+            break;
+        }
 
         switch (spec_res) {
             case SPEC_TRANSFORMED: {
@@ -155,25 +155,17 @@ int main(void) {
                 //!       data.
                 break;
             };
-        //switch (spec_res) {
-        //    case SPEC_TRANSFORMED: {
-        //        //! @note Alert the system we can now do something with the transmit
-        //        //!       data.
-        //        /* fram_save(transmitBuffer, sizeof(complex_t) * NPERSEG); */
-        //        break;
-        //    };
 
-        //    default: {
-        //        printf("spectral_rfft: Invalid state %d\n", spec_res);
-        //        break;
-        //    };
-        //}
+            default: {
+                printf("spectral_rfft: Invalid state %d\n", spec_res);
+                break;
+            };
+        }
     }
 
     //! @note Error state for the Device.
+    Error_Handler();
 
-    while (1) {
-    }
 }
 
 
@@ -183,10 +175,10 @@ int main(void) {
  * @retval None
  */
 static void SYS_ProcessEvent(void) {
-  if (APP_FLAG_GET(APP_FLAG_SHCI_EVENT_PENDING) == 1) {
-    APP_FLAG_RESET(APP_FLAG_SHCI_EVENT_PENDING);
-    shci_user_evt_proc();
-  }
+  /* if (APP_FLAG_GET(APP_FLAG_SHCI_EVENT_PENDING) == 1) { */
+  /*   APP_FLAG_RESET(APP_FLAG_SHCI_EVENT_PENDING); */
+  /*   shci_user_evt_proc(); */
+  /* } */
 }
 
 /**
