@@ -20,6 +20,12 @@
 
 //! @note Data for the application.
 
+#include "main.h"
+#include "stm32wbxx_hal_rcc.h"
+
+#include"fram.h"
+
+
 COM_InitTypeDef BspCOMInit;
 static uint32_t delay = 250;
 static uint8_t transmitBuffer[sizeof(complex_t) * NPERSEG];
@@ -27,8 +33,10 @@ static uint8_t transmitBuffer[sizeof(complex_t) * NPERSEG];
 static volatile uint32_t APP_State = 0x00000000;
 
 UART_HandleTypeDef huart1;
-const uint8_t hello[] = "Hello World!\n";
-const uint16_t hello_len = 14;
+const char *hello = "Hello World!";
+const char *double_char = "ab";
+const uint16_t double_char_len = 3;
+const uint16_t hello_len = 13;
 
 
 //! @note Function definitions.
@@ -59,6 +67,10 @@ int main(void) {
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_USART1_UART_Init();
+    if (BSP_COM_Init(COM1, &BspCOMInit) != BSP_ERROR_NONE) {
+        Error_Handler();
+    }
+
 
     /* Initialize leds */
 
@@ -100,8 +112,12 @@ int main(void) {
         Error_Handler();
     }
 
+    /* Initialize USER push-button, will be used to trigger an interrupt each time it's pressed.*/
+    BSP_PB_Init(BUTTON_SW1, BUTTON_MODE_EXTI);
+    BSP_PB_Init(BUTTON_SW2, BUTTON_MODE_EXTI);
+    BSP_PB_Init(BUTTON_SW3, BUTTON_MODE_EXTI);
+
     /* -- Sample board code to send message over COM1 port ---- */
-    printf("Welcome to STM32 world !\n\r");
 
     /* -- Sample board code to switch on leds ---- */
     BSP_LED_Off(LED_BLUE);
@@ -114,22 +130,24 @@ int main(void) {
     ble_init(&ble_pool);
 
     while (1) {
-        HAL_UART_Transmit(&huart1, (uint8_t *)hello, hello_len, 0xFFFF);
+        printf("Hello STM!\n");
+        BSP_LED_Toggle(LED_BLUE);
+        HAL_Delay(delay);
         //! @note Buffer a batch of EEG data (two real signals)
 
-        float32_t *data = 0;
-        const int8_t ble_ec = ble_fill_buffer(&ble_pool, data);
-        if (ble_ec < 0) {
-            printf("Failed to fill the ble buffer. Reason: %d\n", ble_ec);
-            break;
-        }
+        //float32_t *data = 0;
+        //const int8_t ble_ec = ble_fill_buffer(&ble_pool, data);
+        //if (ble_ec < 0) {
+        //    printf("Failed to fill the ble buffer. Reason: %d\n", ble_ec);
+        //    break;
+        //}
 
-        //! @note Process the batched data using the rfft.
-        const int8_t spec_res = spectral_rfft((complex_t *)transmitBuffer, data);
-        if (spec_res < 0) {
-            printf("Failed fourier transform on data\n");
-            break;
-        }
+        ////! @note Process the batched data using the rfft.
+        //const int8_t spec_res = spectral_rfft((complex_t *)transmitBuffer, data);
+        //if (spec_res < 0) {
+        //    printf("Failed fourier transform on data\n");
+        //    break;
+        //}
 
         switch (spec_res) {
             case SPEC_TRANSFORMED: {
@@ -137,25 +155,24 @@ int main(void) {
                 //!       data.
                 break;
             };
+        //switch (spec_res) {
+        //    case SPEC_TRANSFORMED: {
+        //        //! @note Alert the system we can now do something with the transmit
+        //        //!       data.
+        //        /* fram_save(transmitBuffer, sizeof(complex_t) * NPERSEG); */
+        //        break;
+        //    };
 
-            default: {
-                printf("spectral_rfft: Invalid state %d\n", spec_res);
-                break;
-            };
-        }
+        //    default: {
+        //        printf("spectral_rfft: Invalid state %d\n", spec_res);
+        //        break;
+        //    };
+        //}
     }
 
     //! @note Error state for the Device.
 
     while (1) {
-        BSP_LED_Toggle(LED_BLUE);
-        HAL_Delay(delay);
-
-        BSP_LED_Toggle(LED_GREEN);
-        HAL_Delay(delay);
-
-        BSP_LED_Toggle(LED_RED);
-        HAL_Delay(delay);
     }
 }
 
@@ -277,6 +294,11 @@ static void MX_USART1_UART_Init(void)
 
   /* USER CODE BEGIN USART1_Init 0 */
 
+  BspCOMInit.BaudRate   = 9600;
+  BspCOMInit.WordLength = COM_WORDLENGTH_8B;
+  BspCOMInit.StopBits   = COM_STOPBITS_1;
+  BspCOMInit.Parity     = COM_PARITY_NONE;
+  BspCOMInit.HwFlowCtl  = COM_HWCONTROL_NONE;
   /* USER CODE END USART1_Init 0 */
 
   /* USER CODE BEGIN USART1_Init 1 */
@@ -371,6 +393,14 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
+        BSP_LED_Toggle(LED_BLUE);
+        HAL_Delay(delay);
+
+        BSP_LED_Toggle(LED_GREEN);
+        HAL_Delay(delay);
+
+        BSP_LED_Toggle(LED_RED);
+        HAL_Delay(delay);
   }
   /* USER CODE END Error_Handler_Debug */
 }
