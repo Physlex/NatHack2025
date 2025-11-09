@@ -4,11 +4,11 @@ import { Button } from "flowbite-react";
 import { FaTrash } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 
-export default function RecordingListItem({ recording }) {
+export default function RecordingListItem({ recording, className = "" }) {
   const navigate = useNavigate();
   return (
     <div
-      className="flex flex-row items-center px-4 hover:bg-neutral-100 rounded-lg cursor-pointer justify-between transition-all duration-200"
+      className={`flex flex-row items-center px-4 hover:bg-neutral-100 rounded-lg cursor-pointer justify-between transition-all duration-200 ${className}`}
       onClick={() => navigate(`/recording/${recording.id}`)}
     >
       <div className="flex flex-row items-center">

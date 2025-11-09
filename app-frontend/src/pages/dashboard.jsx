@@ -2,6 +2,7 @@ import { requests } from "../lib/constants"
 import { useEffect, useState } from "react"
 import RecordingListItem from "../components/RecordingListItem";
 import { testRecordings } from "../lib/constants";
+import { Button } from "flowbite-react";
 
 export default function Dashboard() {
   const [data, setData] = useState([])
@@ -21,7 +22,7 @@ export default function Dashboard() {
   }, [])
 
   return (
-    <div className="bg-offwhite w-screen min-h-lvh flex flex-col px-8 py-12">
+    <div className="bg-['#f2f8fc'] min-h-full flex flex-col px-8 py-12">
       <h1 className="!text-3xl font-bold">
         Dashboard
       </h1>
@@ -81,11 +82,12 @@ export default function Dashboard() {
             <h1 className="!text-xl font-bold">
               Recent Recordings
             </h1>
-            <button
-              className="cursor-pointer font-bold !text-neutral-500 hover:underline"
+            <Button
+              color="alternative"
+              className="cursor-pointer"
             >
               View All
-            </button>
+            </Button>
           </div>
           <div className="flex flex-col gap-4">
             {data ? data.map((recording) => (

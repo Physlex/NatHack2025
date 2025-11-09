@@ -7,7 +7,7 @@ import { MdOpenInNew } from "react-icons/md";
 import { AiOutlineHeatMap } from "react-icons/ai";
 import { BiPulse } from "react-icons/bi";
 import { GiBrain } from "react-icons/gi";
-import { formatDate } from "../lib/utils";
+import { formatDate } from "../../../lib/utils";
 
 export default function Recording() {
   const { id } = useParams();
@@ -30,7 +30,7 @@ export default function Recording() {
   }, [id]);
 
   return (
-    <div className="bg-offwhite w-screen min-h-lvh flex flex-col px-8 py-12">
+    <div className="bg-['#f2f8fc'] min-h-full flex flex-col px-8 py-12">
       <div className="flex flex-row items-center gap-4 mb-4">
         <Button
           color="light"
@@ -73,7 +73,7 @@ export default function Recording() {
             </table>
           </div>
 
-          <div className="bg-primary-light col-span-3 row-span-1 p-6 rounded-xl flex flex-col gap-4 relative overflow-hidden">
+          <div className="bg-primary col-span-3 row-span-1 p-6 rounded-xl flex flex-col gap-4 relative overflow-hidden">
             <img
               src="/assets/images/background-lines-white-2.png"
               alt="Background Lines"
@@ -83,11 +83,11 @@ export default function Recording() {
               <FaWaveSquare className="text-4xl text-primary" />
             </div>
             <div className="relative z-10">
-              <h3 className="text-2xl font-bold">MFCC Features</h3>
-              <div className="flex flex-row items-center">
+              <h3 className="text-2xl font-bold text-white">MFCC Features</h3>
+              <div className="flex flex-row items-center text-white">
                 <p>{recordingData.mfcc ? recordingData.mfcc.length : 0} coeffs</p>
                 <MdOpenInNew
-                  className="ml-1 cursor-pointer text-gray-600 hover:text-gray-800 transition-colors"
+                  className="ml-1 mt-[0.15rem] cursor-pointer text-white hover:text-gray-800 transition-colors"
                   onClick={() => setMfccModalOpen(true)}
                 />
               </div>
@@ -100,7 +100,7 @@ export default function Recording() {
             <ButtonGroup className="!shadow-none">
               <Button
                 color="alternative"
-                className={`transition-all duration-200 ${chartType === "spectrogram" ? "bg-primary-light hover:bg-primary hover:text-white" : ""}`}
+                className={`transition-all duration-200 ${chartType === "spectrogram" ? "bg-primary hover:bg-primary-light text-white hover:text-black hover:border-none" : ""}`}
                 onClick={() => setChartType('spectrogram')}
               >
                 <AiOutlineHeatMap className="me-2 h-4 w-4" />
@@ -108,7 +108,7 @@ export default function Recording() {
               </Button>
               <Button
                 color="alternative"
-                className={`transition-all duration-200 ${chartType === "periodogram" ? "bg-primary-light hover:bg-primary hover:text-white" : ""}`}
+                className={`transition-all duration-200 ${chartType === "periodogram" ? "bg-primary hover:bg-primary-light text-white hover:text-black hover:border-none" : ""}`}
                 onClick={() => setChartType('periodogram')}
               >
                 <BiPulse className="me-2 h-4 w-4" />
@@ -116,7 +116,7 @@ export default function Recording() {
               </Button>
               <Button
                 color="alternative"
-                className={`transition-all duration-200 ${chartType === "potentials" ? "bg-primary-light hover:bg-primary hover:text-white" : ""}`}
+                className={`transition-all duration-200 ${chartType === "potentials" ? "bg-primary hover:bg-primary-light text-white hover:text-black hover:border-none" : ""}`}
                 onClick={() => setChartType('potentials')}
               >
                 <GiBrain className="me-2 h-4 w-4" />
