@@ -12,7 +12,7 @@
 #include "lib.h"
 #include "bbox_ble.h"
 #include "cpu2.h"
-#include"fram.h"
+#include "fram.h"
 
 #include "sys/panic.h"
 
@@ -20,11 +20,20 @@
 //! @note Application definitions.
 //! @note Data for the application.
 
+#define RX_BUFFER_SIZE 128
+uint8_t aRXBufferUser[RX_BUFFER_SIZE];
+uint8_t aRXBufferA[RX_BUFFER_SIZE];
+uint8_t aRXBufferB[RX_BUFFER_SIZE];
+uint8_t *pBufferReadyForUser;
+uint8_t *pBufferReadyForReception;
+int uwNbReceivedChars;
 
 COM_InitTypeDef BspCOMInit;
 static uint32_t delay = 250;
 static uint8_t transmitBuffer[sizeof(complex_t) * NPERSEG];
 
+uint8_t rxBuffer[RX_BUFFER_SIZE];
+volatile uint8_t dataReceivedFlag = 0;
 
 UART_HandleTypeDef huart1;
 const char *hello = "Hello World!";
@@ -38,10 +47,28 @@ const uint16_t hello_len = 13;
 void SystemClock_Config(void);
 void BlinkNTimes(int n);
 
+static void SYS_ProcessEvent(void);
 void PeriphCommonClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 
+/* USER CODE BEGIN PFP */
+#if defined(__ICCARM__)
+/* New definition from EWARM V9, compatible with EWARM8 */
+int iar_fputc(int ch);
+#define PUTCHAR_PROTOTYPE int iar_fputc(int ch)
+#define GETCHAR_PROTOTYPE int fgetc(FILE *f)
+#elif defined (__CC_ARM) || defined(__ARMCC_VERSION)
+/* ARM Compiler 5/6 */
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#define GETCHAR_PROTOTYPE int fgetc(FILE *f)
+#elif defined(__GNUC__)
+int __io_putchar(int ch);
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+int __io_getchar(void);
+#define GETCHAR_PROTOTYPE int __io_getchar(void)
+#endif /* __ICCARM__ */
 
 /**
   * @brief  The application entry point.
@@ -60,9 +87,10 @@ int main(void) {
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_USART1_UART_Init();
-    if (BSP_COM_Init(COM1, &BspCOMInit) != BSP_ERROR_NONE) {
-        Error_Handler();
-    }
+
+    BSP_PB_Init(BUTTON_SW1, BUTTON_MODE_EXTI);
+    BSP_PB_Init(BUTTON_SW2, BUTTON_MODE_EXTI);
+    BSP_PB_Init(BUTTON_SW3, BUTTON_MODE_EXTI);
 
     /* Initialize leds */
 
@@ -70,26 +98,30 @@ int main(void) {
     BSP_LED_Init(LED_GREEN);
     BSP_LED_Init(LED_RED);
 
-    /* Initialize all transport layers */
-    CPU2_Init();
+    // Initialize all transport layers
+    // CPU2_Init();
 
     /* Set the red LED On to indicate that the CPU2 is initializing */
-    BSP_LED_On(LED_RED);
+    // BSP_LED_On(LED_RED);
+
+    // BSP_LED_On(LED_RED);
 
     /* Wait until the CPU2 gets initialized */
-    while(
-        (CPU2_BB_FLAG_GET(APP_State, APP_FLAG_CPU2_INITIALIZED) == 0) ||
-        (CPU2_BB_FLAG_GET(APP_State, APP_FLAG_WIRELESS_FW_RUNNING) == 0)
-    ) {
-      /* Process pending SYSTEM event coming from CPU2 (if any) */
-      BSP_LED_Toggle(LED_BLUE);
-      /* HAL_Delay(delay); */
-      /* SYS_ProcessEvent(); */
-      /* HAL_Delay(delay); */
-      BSP_LED_Toggle(LED_BLUE);
-      /* HAL_Delay(delay); */
-    }
+    // while(
+    //     (CPU2_BB_FLAG_GET(APP_State, APP_FLAG_CPU2_INITIALIZED) == 0) ||
+    //     (CPU2_BB_FLAG_GET(APP_State, APP_FLAG_WIRELESS_FW_RUNNING) == 0)
+    // ) {
+    //   /* Process pending SYSTEM event coming from CPU2 (if any) */
+    //   SYS_ProcessEvent();
+    //   BSP_LED_Toggle(LED_BLUE);
+    //   /* HAL_Delay(delay); */
+    //   /* SYS_ProcessEvent(); */
+    //   /* HAL_Delay(delay); */
+    //   BSP_LED_Toggle(LED_BLUE);
+    //   /* HAL_Delay(delay); */
+    // }
 
+    BSP_LED_On(LED_RED);
     /* Configure the CPU2 Debug (Optional) */
     /* APPD_EnableCPU2(); */
 
@@ -97,63 +129,150 @@ int main(void) {
     BSP_LED_Off(LED_RED);
 
     /* Set the green LED On to indicate that the wireless stack FW is running */
-    BSP_LED_On(LED_GREEN);
 
     /* Initialize COM port */
+    BspCOMInit.BaudRate   = 9600;
+    BspCOMInit.WordLength = COM_WORDLENGTH_8B;
+    BspCOMInit.StopBits   = COM_STOPBITS_1;
+    BspCOMInit.Parity     = COM_PARITY_NONE;
+    BspCOMInit.HwFlowCtl  = COM_HWCONTROL_NONE;
     if (BSP_COM_Init(COM1, &BspCOMInit) != BSP_ERROR_NONE) {
         Error_Handler();
     }
 
     /* -- Sample board code to send message over COM1 port ---- */
-    printf("We're up STM!\n");
+    fflush (stdout);
+    printf(" |-> We're up STM!\n\r");
+    fflush (stdout);
 
     /* -- Sample board code to switch on leds ---- */
     BSP_LED_Off(LED_BLUE);
     BSP_LED_Off(LED_GREEN);
     BSP_LED_Off(LED_RED);
 
+    /* HAL_UART_Receive_IT(&huart1, rxBuffer, sizeof(rxBuffer)); */
+
     //! @note User code for BLE
 
-    ble_pool_t ble_pool;
-    ble_init(&ble_pool);
+    /* ble_pool_t ble_pool; */
+    /* ble_init(&ble_pool); */
 
+    /* Output a message on Hyperterminal using printf function */
+    printf("\n\r === UART Printf Example === \n\r");
+
+    /* User is prompted to enter characters on terminal input.
+       Entered characters are echoed on terminal output until a CR character is entered */
+    fflush (stdout);
+
+    printf("\n\r --> Awaiting Commands\n\r");
+    fflush (stdout);
+
+
+    HAL_UART_Receive_IT(&huart1, rxBuffer, RX_BUFFER_SIZE);
     while (1) {
-        printf("Hello STM!\n");
+        printf(" --> Awaiting Commands: %sdata recieved\n\r", dataReceivedFlag ? "" : "no ");
+        fflush (stdout);
         BSP_LED_Toggle(LED_BLUE);
-        HAL_Delay(delay);
+        HAL_Delay(delay * 8);
         //! @note Buffer a batch of EEG data (two real signals)
 
-        float32_t *data = 0;
-        const int8_t ble_ec = ble_fill_buffer(&ble_pool, data);
-        if (ble_ec < 0) {
-            printf("Failed to fill the ble buffer. Reason: %d\n", ble_ec);
-            break;
+        if (dataReceivedFlag) {
+            dataReceivedFlag = 0;
+            printf("Data received\n\r");
+            BSP_LED_Toggle(LED_GREEN);
+            HAL_Delay(delay * 4);
         }
 
-        ////! @note Process the batched data using the rfft.
-        const int8_t spec_res = spectral_rfft((complex_t *)transmitBuffer, data);
-        if (spec_res < 0) {
-            printf("Failed fourier transform on data\n");
-            break;
-        }
+        //float32_t *data = 0;
+        //const int8_t ble_ec = ble_fill_buffer(&ble_pool, data);
+        //if (ble_ec < 0) {
+        //    printf("Failed to fill the ble buffer. Reason: %d\n", ble_ec);
+        //    break;
+        //}
 
-        switch (spec_res) {
-            case SPEC_TRANSFORMED: {
-                //! @note Alert the system we can now do something with the transmit
-                //!       data.
-                break;
-            };
+        //////! @note Process the batched data using the rfft.
+        //const int8_t spec_res = spectral_rfft((complex_t *)transmitBuffer, data);
+        //if (spec_res < 0) {
+        //    printf("Failed fourier transform on data\n");
+        //    break;
+        //}
 
-            default: {
-                printf("spectral_rfft: Invalid state %d\n", spec_res);
-                break;
-            };
-        }
+        //switch (spec_res) {
+        //    case SPEC_TRANSFORMED: {
+        //        //! @note Alert the system we can now do something with the transmit
+        //        //!       data.
+        //        /* fram_save(transmitBuffer, sizeof(complex_t) * NPERSEG); */
+        //        break;
+        //    };
+
+        //    default: {
+        //        printf("spectral_rfft: Invalid state %d\n", spec_res);
+        //        break;
+        //    };
+        //}
     }
 
-    //! @note Error state for the Device.
-    Error_Handler();
+    /* Error_Handler(); */
 }
+
+// void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+// {
+//   if(huart->Instance == USART1)
+//   {
+//     /* Process Size bytes from rxBuffer */
+//     printf("Data received!\n\r");
+//     dataReceivedFlag = 1;
+//
+//     /* Re-enable for next message */
+//     HAL_UARTEx_ReceiveToIdle_IT(&huart1, rxBuffer, sizeof(rxBuffer));
+//   }
+// }
+
+/**
+  * @brief This function handles USART1 global interrupt.
+  */
+void USART1_IRQHandler()
+{
+  /* USER CODE BEGIN USART1_IRQn 0 */
+  /* printf("USART1_IRQn\n\r"); */
+
+  /* USER CODE END USART1_IRQn 0 */
+  HAL_UART_IRQHandler(&huart1);  // From stm32wbxx_hal_uart.h:1656
+  /* USER CODE BEGIN USART1_IRQn 1 */
+
+  /* USER CODE END USART1_IRQn 1 */
+}
+
+/**
+  * @brief UART Receive Complete Callback
+  *
+  * This callback is invoked by HAL_UART_IRQHandler() when:
+  * - The exact number of bytes requested in HAL_UART_Receive_IT() have been received
+  * - Reception completed successfully (no errors)
+  *
+  * Execution context: Interrupt context (keep it SHORT and FAST)
+  *
+  * @param huart: UART handle that completed reception
+  * @retval None
+  */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  if(huart->Instance == USART1)
+  {
+    /* Set flag for main loop to process data */
+    dataReceivedFlag = 1;
+
+    /*
+     * CRITICAL: Re-enable reception for next message
+     * Without this, you'll only receive ONE message total!
+     *
+     * This call reconfigures the HAL state machine to expect
+     * another 10 bytes and re-enables RXNE interrupt
+     */
+     HAL_UART_Receive_IT(&huart1, rxBuffer, sizeof(rxBuffer));
+  }
+}
+
 
 /**
   * @brief System Clock Configuration
@@ -260,11 +379,11 @@ static void MX_USART1_UART_Init(void)
 
   /* USER CODE BEGIN USART1_Init 0 */
 
-  BspCOMInit.BaudRate   = 9600;
-  BspCOMInit.WordLength = COM_WORDLENGTH_8B;
-  BspCOMInit.StopBits   = COM_STOPBITS_1;
-  BspCOMInit.Parity     = COM_PARITY_NONE;
-  BspCOMInit.HwFlowCtl  = COM_HWCONTROL_NONE;
+  /* BspCOMInit.BaudRate   = 9600; */
+  /* BspCOMInit.WordLength = COM_WORDLENGTH_8B; */
+  /* BspCOMInit.StopBits   = COM_STOPBITS_1; */
+  /* BspCOMInit.Parity     = COM_PARITY_NONE; */
+  /* BspCOMInit.HwFlowCtl  = COM_HWCONTROL_NONE; */
   /* USER CODE END USART1_Init 0 */
 
   /* USER CODE BEGIN USART1_Init 1 */
@@ -298,26 +417,11 @@ static void MX_USART1_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART1_Init 2 */
-
+  HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(USART1_IRQn);
   /* USER CODE END USART1_Init 2 */
 
 }
-
-
-/**
-  * @brief  Retargets the C library printf function to the USART.
-  * @param  None
-  * @retval None
-  */
-// PUTCHAR_PROTOTYPE
-// {
-//   /* Place your implementation of fputc here
-//   /* e.g. write a character to the USART1 and Loop until the end of transmission */
-//   HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
-//
-//   return ch;
-// }
-
 /* USER CODE END 4 */
 
 /**
@@ -331,6 +435,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   {
     case BUTTON_SW1_PIN:
       /* Change the period to 100 ms */
+
+      BSP_LED_Toggle(LED_RED);
+      dataReceivedFlag = 1;
       delay = 100;
       break;
     case BUTTON_SW2_PIN:
@@ -344,6 +451,30 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     default:
       break;
   }
+}
+
+/**
+  * @brief This function handles EXTI line4 interrupt (BUTTON_SW1).
+  */
+void EXTI4_IRQHandler(void)
+{
+  HAL_GPIO_EXTI_IRQHandler(BUTTON_SW1_PIN);
+}
+
+/**
+  * @brief This function handles EXTI line0 interrupt (BUTTON_SW2).
+  */
+void EXTI0_IRQHandler(void)
+{
+  HAL_GPIO_EXTI_IRQHandler(BUTTON_SW2_PIN);
+}
+
+/**
+  * @brief This function handles EXTI line1 interrupt (BUTTON_SW3).
+  */
+void EXTI1_IRQHandler(void)
+{
+  HAL_GPIO_EXTI_IRQHandler(BUTTON_SW3_PIN);
 }
 
 void BlinkNTimes(int n) {
@@ -400,47 +531,8 @@ static void SYS_ProcessEvent(void) {
     APP_FLAG_RESET(APP_FLAG_BLE_CONNECTED);
     BlinkNTimes(10);
   }
-  /* Process unknown flags */
-  else if (APP_FLAG_GET(APP_UNKNOWN_6) == 1) {
-    APP_FLAG_RESET(APP_UNKNOWN_6);
-    BlinkNTimes(11);
-  } else if (APP_FLAG_GET(APP_UNKNOWN_7) == 1) {
-    APP_FLAG_RESET(APP_UNKNOWN_7);
-    BlinkNTimes(12);
-  } else if (APP_FLAG_GET(APP_UNKNOWN_8) == 1) {
-    APP_FLAG_RESET(APP_UNKNOWN_8);
-    BlinkNTimes(13);
-  } else if (APP_FLAG_GET(APP_UNKNOWN_9) == 1) {
-    APP_FLAG_RESET(APP_UNKNOWN_9);
-    BlinkNTimes(14);
-  } else if (APP_FLAG_GET(APP_UNKNOWN_10) == 1) {
-    APP_FLAG_RESET(APP_UNKNOWN_10);
-    BlinkNTimes(15);
-  } else if (APP_FLAG_GET(APP_UNKNOWN_11) == 1) {
-    APP_FLAG_RESET(APP_UNKNOWN_11);
-    BlinkNTimes(16);
-  } else if (APP_FLAG_GET(APP_UNKNOWN_12) == 1) {
-    APP_FLAG_RESET(APP_UNKNOWN_12);
-    BlinkNTimes(17);
-  } else if (APP_FLAG_GET(APP_UNKNOWN_13) == 1) {
-    APP_FLAG_RESET(APP_UNKNOWN_13);
-    BlinkNTimes(18);
-  } else if (APP_FLAG_GET(APP_UNKNOWN_14) == 1) {
-    APP_FLAG_RESET(APP_UNKNOWN_14);
-    BlinkNTimes(19);
-  } else if (APP_FLAG_GET(APP_UNKNOWN_15) == 1) {
-    APP_FLAG_RESET(APP_UNKNOWN_15);
-    BlinkNTimes(20);
-  } else if (APP_FLAG_GET(APP_UNKNOWN_16) == 1) {
-    APP_FLAG_RESET(APP_UNKNOWN_16);
-    BlinkNTimes(21);
-  } else if (APP_FLAG_GET(APP_UNKNOWN_17) == 1) {
-    APP_FLAG_RESET(APP_UNKNOWN_17);
-    BlinkNTimes(22);
-  }
   return;
 }
-
 
 #ifdef USE_FULL_ASSERT
 /**
