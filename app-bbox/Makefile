@@ -37,6 +37,7 @@ BUILD_DIR = build
 # C sources
 C_SOURCES =  \
 src/main.c \
+src/bbox_ble.c \
 src/stm32wbxx_it.c \
 src/stm32wbxx_hal_msp.c \
 Drivers/BSP/P-NUCLEO-WB55.Nucleo/stm32wbxx_nucleo.c \
@@ -58,6 +59,7 @@ Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_usart.c \
 Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_usart_ex.c \
 Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_uart_ex.c \
 Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_uart.c \
+$(wildcard MiddleWares/ST/STM32_WPAN/ble/core/auto/*.c) \
 src/system_stm32wbxx.c \
 src/sysmem.c \
 src/syscalls.c
@@ -80,7 +82,6 @@ LIB_NAME = libdsp
 
 LIB_C_SOURCES = \
 lib/lib.c \
-lib/ble.c \
 lib/spectral.c \
 $(wildcard Drivers/CMSIS/DSP/Source/CommonTables/*.c) \
 $(wildcard Drivers/CMSIS/DSP/Source/BasicMathFunctions/*.c) \
@@ -154,7 +155,12 @@ C_INCLUDES =  \
 -IDrivers/BSP/P-NUCLEO-WB55.Nucleo \
 -IDrivers/CMSIS/DSP/Include \
 -IDrivers/CMSIS/Include \
--IDrivers/CMSIS/Device/ST/STM32WBxx/Include
+-IDrivers/CMSIS/Device/ST/STM32WBxx/Include \
+-IMiddlewares/ST/STM32_WPAN/ble/core/auto/ \
+-IMiddlewares/ST/STM32_WPAN/ble/core \
+-IMiddlewares/ST/STM32_WPAN/ble \
+-IMiddlewares/ST/STM32_WPAN/interface/patterns/ble_thread
+
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
