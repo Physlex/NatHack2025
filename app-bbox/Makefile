@@ -13,7 +13,7 @@
 ######################################
 # target
 ######################################
-TARGET = STM32WB55RG
+TARGET = bbox
 
 
 ######################################
@@ -39,39 +39,63 @@ C_SOURCES =  \
 src/main.c \
 src/stm32wbxx_it.c \
 src/stm32wbxx_hal_msp.c \
+src/fram.c \
+src/ring.c \
 Drivers/BSP/P-NUCLEO-WB55.Nucleo/stm32wbxx_nucleo.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_rcc.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_ll_rcc.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_rcc_ex.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_flash.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_flash_ex.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_gpio.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_hsem.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_dma.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_dma_ex.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_pwr.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_pwr_ex.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_cortex.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_exti.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_usart.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_usart_ex.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_uart_ex.c \
-Drivers/STM32WBxx_HAL_Driver/src/stm32wbxx_hal_uart.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_rcc.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_rcc.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_rcc_ex.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_flash.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_flash_ex.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_gpio.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_hsem.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_dma.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_dma_ex.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_pwr.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_pwr_ex.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_cortex.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_exti.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_usart.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_usart_ex.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_uart_ex.c \
+Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_uart.c \
 src/system_stm32wbxx.c \
 src/sysmem.c \
-src/syscalls.c  
+src/syscalls.c
 
 # ASM sources
 ASM_SOURCES =  \
 startup_stm32wb55xx_cm4.s
 
 # ASMM sources
-ASMM_SOURCES = 
+ASMM_SOURCES =
 
 # ASMMC sources
-ASMMC_SOURCE = 
+ASMMC_SOURCE =
 
+#######################################
+# libdsp
+#######################################
+
+LIB_NAME = libdsp
+
+LIB_C_SOURCES = \
+lib/lib.c \
+lib/ble.c \
+lib/spectral.c \
+$(wildcard Drivers/CMSIS/DSP/Source/CommonTables/*.c) \
+$(wildcard Drivers/CMSIS/DSP/Source/BasicMathFunctions/*.c) \
+$(wildcard Drivers/CMSIS/DSP/Source/ComplexMathFunctions/*.c) \
+$(wildcard Drivers/CMSIS/DSP/Source/TransformFunctions/*.c) \
+$(wildcard Drivers/CMSIS/DSP/Source/SupportFunctions/*.c)
+
+
+LIB_ASMM_SOURCES = \
+Drivers/CMSIS/DSP/Source/TransformFunctions/arm_bitreversal2.S
+
+LIB_TEST_C_SOURCES = \
+lib/test.c
 
 #######################################
 # binaries
@@ -84,15 +108,17 @@ CC = $(GCC_PATH)/$(PREFIX)gcc
 AS = $(GCC_PATH)/$(PREFIX)gcc -x assembler-with-cpp
 CP = $(GCC_PATH)/$(PREFIX)objcopy
 SZ = $(GCC_PATH)/$(PREFIX)size
+RL = $(GCC_BIN)/$(PREFIX)ranlib
 else
 CC = $(PREFIX)gcc
 AS = $(PREFIX)gcc -x assembler-with-cpp
 CP = $(PREFIX)objcopy
 SZ = $(PREFIX)size
+RL = $(PREFIX)ranlib
 endif
 HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
- 
+
 #######################################
 # CFLAGS
 #######################################
@@ -110,7 +136,7 @@ MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
 
 # macros for gcc
 # AS defines
-AS_DEFS = 
+AS_DEFS =
 
 # C defines
 C_DEFS =  \
@@ -120,17 +146,17 @@ C_DEFS =  \
 
 
 # AS includes
-AS_INCLUDES = 
+AS_INCLUDES =
 
 # C includes
 C_INCLUDES =  \
 -Iinc \
--IDrivers/STM32WBxx_HAL_Driver/inc \
--IDrivers/STM32WBxx_HAL_Driver/inc/Legacy \
+-IDrivers/STM32WBxx_HAL_Driver/Inc \
+-IDrivers/STM32WBxx_HAL_Driver/Inc/Legacy \
 -IDrivers/BSP/P-NUCLEO-WB55.Nucleo \
--IDrivers/CMSIS/Device/ST/STM32WBxx/Include \
--IDrivers/CMSIS/Include
-
+-IDrivers/CMSIS/DSP/Include \
+-IDrivers/CMSIS/Include \
+-IDrivers/CMSIS/Device/ST/STM32WBxx/Include
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
@@ -153,12 +179,22 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 LDSCRIPT = stm32wb55xx_flash_cm4.ld
 
 # libraries
-LIBS = -lc -lm -lnosys 
-LIBDIR = 
+LIBS = -lc -lm -lnosys -ldsp
+LIBDIR = -L./build
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all
-all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
+.PHONY: all lib lib-test src upload
+all: src
+
+upload:
+	openocd
+
+lib: $(BUILD_DIR)/$(LIB_NAME).a
+
+lib-test: lib $(BUILD_DIR)/$(TARGET)-lib.elf $(BUILD_DIR)/$(TARGET)-lib.hex $(BUILD_DIR)/$(TARGET)-lib.bin
+
+src: lib $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
 
 
 #######################################
@@ -175,7 +211,7 @@ vpath %.S $(sort $(dir $(ASMM_SOURCES)))
 OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASMMC_SOURCES:.c=.o)))
 vpath %.S $(sort $(dir $(ASMMC_SOURCES)))
 
-$(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR) 
+$(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR)
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
 
 $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
@@ -189,19 +225,63 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
 
 $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 	$(HEX) $< $@
-	
+
 $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
-	$(BIN) $< $@	
-	
+	$(BIN) $< $@
+
 $(BUILD_DIR):
-	mkdir $@		
+	mkdir $@
+
+
+#######################################
+
+# build the library
+#######################################
+
+# list of objects
+LIB_OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(LIB_C_SOURCES:.c=.o)))
+vpath %.c $(sort $(dir $(LIB_C_SOURCES)))
+LIB_OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(LIB_ASMM_SOURCES:.S=.o)))
+vpath %.S $(sort $(dir $(LIB_ASMM_SOURCES)))
+
+$(BUILD_DIR)/%.o: %.c Makefile | $(LIB_OBJECTS)
+	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(LIB_OBJECTS)/$(notdir $(<:.c=.lst)) $< -o $@
+
+$(BUILD_DIR)/%.o: %.S Makefile | $(LIB_OBJECTS)
+	$(AS) -c $(CFLAGS) $< -o $@
+
+$(BUILD_DIR)/$(LIB_NAME).a: | $(LIB_OBJECTS) Makefile
+	$(AR) rcs $@ $(LIB_OBJECTS)
+	$(RL) $@
+
+
+#######################################
+# build the library test
+#######################################
+# list of objects
+LIB_TEST_OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(LIB_TEST_C_SOURCES:.c=.o)))
+vpath %.c $(sort $(dir $(LIB_TEST_C_SOURCES)))
+
+$(BUILD_DIR)/%.o: %.c Makefile | $(LIB_TEST_OBJECTS)
+	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
+
+$(BUILD_DIR)/$(TARGET)-lib.elf: $(LIB_TEST_OBJECTS) Makefile
+	$(CC) $(LIB_TEST_OBJECTS) $(LDFLAGS) -o $@
+	$(SZ) $@
+
+$(BUILD_DIR)/%-lib.hex: $(BUILD_DIR)/%-lib.elf | $(LIB_TEST_OBJECTS)
+	$(HEX) $< $@
+
+$(BUILD_DIR)/%-lib.bin: $(BUILD_DIR)/%-lib.elf | $(LIB_TEST_OBJECTS)
+	$(BIN) $< $@
+
 
 #######################################
 # clean up
 #######################################
 clean:
 	-rm -fR $(BUILD_DIR)
-  
+
 #######################################
 # dependencies
 #######################################
