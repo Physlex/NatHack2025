@@ -1,5 +1,5 @@
-#ifndef BBOX_CORE_BLE_H_
-#define BBOX_CORE_BLE_H_
+#ifndef BBOX_CORE_BBOX_BLE_H_
+#define BBOX_CORE_BBOX_BLE_H_
 
 #include "types.h"
 
@@ -35,6 +35,9 @@ extern int8_t ble_init(ble_pool_t *self);
 //! @note Swap the active buffer.
 extern int8_t ble_swap_buffer(ble_pool_t *self);
 
+//! @note Scan for the ganglion to attempt to discover it.
+extern int8_t ble_discover_ganglion();
+
 //! @note Fill the active buffer with data. (USED IN TEST ONLY)
 extern int8_t ble_fill_buffer(ble_pool_t *self, float32_t *data);
 
@@ -42,4 +45,4 @@ extern int8_t ble_fill_buffer(ble_pool_t *self, float32_t *data);
 extern float32_t *ble_active_buffer(ble_pool_t *self);
 
 
-#endif  // BBOX_CORE_BLE_H_
+#endif  // BBOX_CORE_BBOX_BLE_H_

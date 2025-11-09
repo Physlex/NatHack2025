@@ -36,11 +36,7 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
-src/main.c \
-src/stm32wbxx_it.c \
-src/stm32wbxx_hal_msp.c \
-src/fram.c \
-src/ring.c \
+$(wildcard src/*.c) \
 Drivers/BSP/P-NUCLEO-WB55.Nucleo/stm32wbxx_nucleo.c \
 Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_rcc.c \
 Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_rcc.c \
@@ -60,9 +56,11 @@ Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_usart.c \
 Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_usart_ex.c \
 Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_uart_ex.c \
 Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_uart.c \
-src/system_stm32wbxx.c \
-src/sysmem.c \
-src/syscalls.c
+$(wildcard Middlewares/ST/STM32_WPAN/ble/core/auto/*.c) \
+$(wildcard Middlewares/ST/STM32_WPAN/interface/patterns/ble_thread/tl/*.c) \
+$(wildcard Middlewares/ST/STM32_WPAN/utilities/*.c) \
+$(wildcard Middlewares/ST/STM32_WPAN/interface/patterns/ble_thread/shci/*.c) \
+
 
 # ASM sources
 ASM_SOURCES =  \
@@ -82,7 +80,6 @@ LIB_NAME = libdsp
 
 LIB_C_SOURCES = \
 lib/lib.c \
-lib/ble.c \
 lib/spectral.c \
 $(wildcard Drivers/CMSIS/DSP/Source/CommonTables/*.c) \
 $(wildcard Drivers/CMSIS/DSP/Source/BasicMathFunctions/*.c) \
@@ -156,7 +153,17 @@ C_INCLUDES =  \
 -IDrivers/BSP/P-NUCLEO-WB55.Nucleo \
 -IDrivers/CMSIS/DSP/Include \
 -IDrivers/CMSIS/Include \
--IDrivers/CMSIS/Device/ST/STM32WBxx/Include
+-IDrivers/CMSIS/Device/ST/STM32WBxx/Include \
+-IMiddlewares/ST/STM32_WPAN/ble/core/auto/ \
+-IMiddlewares/ST/STM32_WPAN/ble/core/template/ \
+-IMiddlewares/ST/STM32_WPAN/ble/core \
+-IMiddlewares/ST/STM32_WPAN/ble \
+-IMiddlewares/ST/STM32_WPAN/interface/patterns/ble_thread \
+-IMiddlewares/ST/STM32_WPAN/interface/patterns/ble_thread/tl \
+-IMiddlewares/ST/STM32_WPAN/interface/patterns/ble_thread/shci \
+-IMiddlewares/ST/STM32_WPAN/utilities \
+-IMiddlewares/ST/STM32_WPAN/
+
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
