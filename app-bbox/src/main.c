@@ -1,165 +1,120 @@
-/* USER CODE BEGIN Header */
-/**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2025 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
-/* USER CODE END Header */
-/* Includes ------------------------------------------------------------------*/
-#include "main.h"
+#include <stdint.h>
 #include "lib.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
+#include "main.h"
+#include "stm32wbxx_hal_rcc.h"
 
-/* USER CODE END Includes */
+/* #include"fram.h" */
 
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
 
 COM_InitTypeDef BspCOMInit;
 static uint32_t delay = 250;
+static uint8_t transmitBuffer[sizeof(complex_t) * NPERSEG];
 
-/* USER CODE BEGIN PV */
+UART_HandleTypeDef huart1;
+const char *hello = "Hello World!";
+const char *double_char = "ab";
+const uint16_t double_char_len = 3;
+const uint16_t hello_len = 13;
 
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 void PeriphCommonClock_Config(void);
 static void MX_GPIO_Init(void);
-/* USER CODE BEGIN PFP */
+static void MX_USART1_UART_Init(void);
 
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
+/* #define PUTCHAR_PROTOTYPE int __io_putchar(int ch) */
 
 /**
   * @brief  The application entry point.
   * @retval int
   */
-int main(void)
-{
+int main(void) {
+    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+    HAL_Init();
 
-  /* USER CODE BEGIN 1 */
+    /* Configure the system clock */
+    SystemClock_Config();
 
-  /* USER CODE END 1 */
+    /* Configure the peripherals common clocks */
+    PeriphCommonClock_Config();
 
-  /* MCU Configuration--------------------------------------------------------*/
+    /* Initialize all configured peripherals */
+    MX_GPIO_Init();
+    MX_USART1_UART_Init();
+    if (BSP_COM_Init(COM1, &BspCOMInit) != BSP_ERROR_NONE) {
+        Error_Handler();
+    }
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
 
-  /* USER CODE BEGIN Init */
+    /* Initialize leds */
 
-  /* USER CODE END Init */
+    BSP_LED_Init(LED_BLUE);
+    BSP_LED_Init(LED_GREEN);
+    BSP_LED_Init(LED_RED);
 
-  /* Configure the system clock */
-  SystemClock_Config();
+    /* Initialize USER push-button, will be used to trigger an interrupt each time it's pressed.*/
+    BSP_PB_Init(BUTTON_SW1, BUTTON_MODE_EXTI);
+    BSP_PB_Init(BUTTON_SW2, BUTTON_MODE_EXTI);
+    BSP_PB_Init(BUTTON_SW3, BUTTON_MODE_EXTI);
 
-  /* Configure the peripherals common clocks */
-  PeriphCommonClock_Config();
+    /* -- Sample board code to send message over COM1 port ---- */
 
-  /* USER CODE BEGIN SysInit */
+    /* -- Sample board code to switch on leds ---- */
+    BSP_LED_Off(LED_BLUE);
+    BSP_LED_Off(LED_GREEN);
+    BSP_LED_Off(LED_RED);
 
-  /* USER CODE END SysInit */
+    //! @note User code for BLE
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  /* USER CODE BEGIN 2 */
+    ble_pool_t ble_pool;
+    ble_init(&ble_pool);
 
-  /* USER CODE END 2 */
+    while (1) {
+        printf("Hello STM!\n");
+        BSP_LED_Toggle(LED_BLUE);
+        HAL_Delay(delay);
+        //! @note Buffer a batch of EEG data (two real signals)
 
-  /* Initialize leds */
-  BSP_LED_Init(LED_BLUE);
-  BSP_LED_Init(LED_GREEN);
-  BSP_LED_Init(LED_RED);
+        //float32_t *data = 0;
+        //const int8_t ble_ec = ble_fill_buffer(&ble_pool, data);
+        //if (ble_ec < 0) {
+        //    printf("Failed to fill the ble buffer. Reason: %d\n", ble_ec);
+        //    break;
+        //}
 
-  /* Initialize USER push-button, will be used to trigger an interrupt each time it's pressed.*/
-  BSP_PB_Init(BUTTON_SW1, BUTTON_MODE_EXTI);
-  BSP_PB_Init(BUTTON_SW2, BUTTON_MODE_EXTI);
-  BSP_PB_Init(BUTTON_SW3, BUTTON_MODE_EXTI);
+        ////! @note Process the batched data using the rfft.
+        //const int8_t spec_res = spectral_rfft((complex_t *)transmitBuffer, data);
+        //if (spec_res < 0) {
+        //    printf("Failed fourier transform on data\n");
+        //    break;
+        //}
 
-  /* Initialize COM1 port (115200, 8 bits (7-bit data + 1 stop bit), no parity */
-  BspCOMInit.BaudRate   = 115200;
-  BspCOMInit.WordLength = COM_WORDLENGTH_8B;
-  BspCOMInit.StopBits   = COM_STOPBITS_1;
-  BspCOMInit.Parity     = COM_PARITY_NONE;
-  BspCOMInit.HwFlowCtl  = COM_HWCONTROL_NONE;
-  if (BSP_COM_Init(COM1, &BspCOMInit) != BSP_ERROR_NONE)
-  {
-    Error_Handler();
-  }
+        //switch (spec_res) {
+        //    case SPEC_TRANSFORMED: {
+        //        //! @note Alert the system we can now do something with the transmit
+        //        //!       data.
+        //        /* fram_save(transmitBuffer, sizeof(complex_t) * NPERSEG); */
+        //        break;
+        //    };
 
-  /* USER CODE BEGIN BSP */
+        //    default: {
+        //        printf("spectral_rfft: Invalid state %d\n", spec_res);
+        //        break;
+        //    };
+        //}
+    }
 
-  /* -- Sample board code to send message over COM1 port ---- */
-  printf("Welcome to STM32 world !\n\r");
+    //! @note Error state for the Device.
 
-  /* -- Sample board code to switch on leds ---- */
-  BSP_LED_On(LED_BLUE);
-  BSP_LED_On(LED_GREEN);
-  BSP_LED_On(LED_RED);
-
-  /* USER CODE END BSP */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-    fft_wrapper();
-
-    /* -- Sample board code for User push-button in interrupt mode ---- */
-    BSP_LED_Toggle(LED_BLUE);
-    HAL_Delay(delay);
-
-    BSP_LED_Toggle(LED_GREEN);
-    HAL_Delay(delay);
-
-    BSP_LED_Toggle(LED_RED);
-    HAL_Delay(delay);
-
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
-  }
-  /* USER CODE END 3 */
+    while (1) {
+    }
 }
 
 /**
   * @brief System Clock Configuration
   * @retval None
   */
-void SystemClock_Config(void)
-{
+void SystemClock_Config(void) {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
@@ -177,8 +132,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_10;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
     Error_Handler();
   }
 
@@ -214,13 +168,9 @@ void PeriphCommonClock_Config(void)
   PeriphClkInitStruct.SmpsClockSelection = RCC_SMPSCLKSOURCE_HSI;
   PeriphClkInitStruct.SmpsDivSelection = RCC_SMPSCLKDIV_RANGE0;
 
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-  {
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
     Error_Handler();
   }
-  /* USER CODE BEGIN Smps */
-
-  /* USER CODE END Smps */
 }
 
 /**
@@ -236,9 +186,9 @@ static void MX_GPIO_Init(void)
   /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
 
   /*Configure GPIO pins : USB_DM_Pin USB_DP_Pin */
   GPIO_InitStruct.Pin = USB_DM_Pin|USB_DP_Pin;
@@ -254,6 +204,74 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+/**
+  * @brief USART1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART1_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART1_Init 0 */
+
+  BspCOMInit.BaudRate   = 9600;
+  BspCOMInit.WordLength = COM_WORDLENGTH_8B;
+  BspCOMInit.StopBits   = COM_STOPBITS_1;
+  BspCOMInit.Parity     = COM_PARITY_NONE;
+  BspCOMInit.HwFlowCtl  = COM_HWCONTROL_NONE;
+  /* USER CODE END USART1_Init 0 */
+
+  /* USER CODE BEGIN USART1_Init 1 */
+
+  /* USER CODE END USART1_Init 1 */
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = 9600;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_ODD;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart1.Init.ClockPrescaler = UART_PRESCALER_DIV1;
+  huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_SetTxFifoThreshold(&huart1, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_SetRxFifoThreshold(&huart1, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_DisableFifoMode(&huart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART1_Init 2 */
+
+  /* USER CODE END USART1_Init 2 */
+
+}
+
+
+/**
+  * @brief  Retargets the C library printf function to the USART.
+  * @param  None
+  * @retval None
+  */
+// PUTCHAR_PROTOTYPE
+// {
+//   /* Place your implementation of fputc here
+//   /* e.g. write a character to the USART1 and Loop until the end of transmission */
+//   HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
+//
+//   return ch;
+// }
 
 /* USER CODE END 4 */
 
@@ -283,6 +301,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   }
 }
 
+
+
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
@@ -294,6 +314,14 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
+        BSP_LED_Toggle(LED_BLUE);
+        HAL_Delay(delay);
+
+        BSP_LED_Toggle(LED_GREEN);
+        HAL_Delay(delay);
+
+        BSP_LED_Toggle(LED_RED);
+        HAL_Delay(delay);
   }
   /* USER CODE END Error_Handler_Debug */
 }

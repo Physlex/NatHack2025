@@ -13,8 +13,7 @@
 ######################################
 # target
 ######################################
-TARGET = STM32WB55RG
-TARGET = bboxclear
+TARGET = bbox
 
 
 ######################################
@@ -30,7 +29,7 @@ OPT = -Og
 # paths
 #######################################
 # Build path
-BUILD_DIR = ../build
+BUILD_DIR = build
 
 ######################################
 # source
@@ -40,6 +39,8 @@ C_SOURCES =  \
 src/main.c \
 src/stm32wbxx_it.c \
 src/stm32wbxx_hal_msp.c \
+src/fram.c \
+src/ring.c \
 Drivers/BSP/P-NUCLEO-WB55.Nucleo/stm32wbxx_nucleo.c \
 Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_rcc.c \
 Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_rcc.c \
@@ -81,7 +82,14 @@ LIB_NAME = libdsp
 
 LIB_C_SOURCES = \
 lib/lib.c \
-Drivers/CMSIS/DSP/Source/TransformFunctions/TransformFunctions.c
+lib/ble.c \
+lib/spectral.c \
+$(wildcard Drivers/CMSIS/DSP/Source/CommonTables/*.c) \
+$(wildcard Drivers/CMSIS/DSP/Source/BasicMathFunctions/*.c) \
+$(wildcard Drivers/CMSIS/DSP/Source/ComplexMathFunctions/*.c) \
+$(wildcard Drivers/CMSIS/DSP/Source/TransformFunctions/*.c) \
+$(wildcard Drivers/CMSIS/DSP/Source/SupportFunctions/*.c)
+
 
 LIB_ASMM_SOURCES = \
 Drivers/CMSIS/DSP/Source/TransformFunctions/arm_bitreversal2.S
@@ -146,12 +154,9 @@ C_INCLUDES =  \
 -IDrivers/STM32WBxx_HAL_Driver/Inc \
 -IDrivers/STM32WBxx_HAL_Driver/Inc/Legacy \
 -IDrivers/BSP/P-NUCLEO-WB55.Nucleo \
--IDrivers/CMSIS/Device/ST/STM32WBxx/Include \
 -IDrivers/CMSIS/DSP/Include \
--IDrivers/CMSIS/Include
 -IDrivers/CMSIS/Include \
--IDrivers/CMSIS/DSP/Include
-
+-IDrivers/CMSIS/Device/ST/STM32WBxx/Include
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
@@ -179,8 +184,11 @@ LIBDIR = -L./build
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all
-.PHONY: all lib lib-test src
+.PHONY: all lib lib-test src upload
 all: src
+
+upload:
+	openocd
 
 lib: $(BUILD_DIR)/$(LIB_NAME).a
 
@@ -225,9 +233,11 @@ $(BUILD_DIR):
 	mkdir $@
 
 
-#######################################
+#######################################
+
 # build the library
-#######################################
+#######################################
+
 # list of objects
 LIB_OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(LIB_C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(LIB_C_SOURCES)))

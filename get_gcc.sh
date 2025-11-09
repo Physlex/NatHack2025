@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e  # Exit on error
-
 TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz"
 ARCHIVE_NAME="arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz"
 VENDOR_DIR="vendor"
