@@ -15,34 +15,6 @@
 
 
 //! @note Application definitions.
-
-#define APP_FLAG_CPU2_INITIALIZED          0
-#define APP_FLAG_WIRELESS_FW_RUNNING       1
-#define APP_FLAG_FUS_FW_RUNNING            2
-#define APP_FLAG_BLE_INITIALIZED           3
-#define APP_FLAG_BLE_ADVERTISING           4
-#define APP_FLAG_BLE_CONNECTED             5
-#define APP_UNKNOWN_6                      6
-#define APP_UNKNOWN_7                      7
-#define APP_UNKNOWN_8                      8
-#define APP_UNKNOWN_9                      9
-#define APP_UNKNOWN_10                     10
-#define APP_UNKNOWN_11                     11
-#define APP_UNKNOWN_12                     12
-#define APP_UNKNOWN_13                     13
-#define APP_UNKNOWN_14                     14
-#define APP_UNKNOWN_15                     15
-#define APP_UNKNOWN_16                     16
-#define APP_UNKNOWN_17                     17
-#define APP_FLAG_HCI_EVENT_PENDING         18
-#define APP_FLAG_SHCI_EVENT_PENDING        19
-#define APP_FLAG_CPU2_ERROR                24
-#define APP_FLAG_BLE_INITIALIZATION_ERROR  25
-#define APP_FLAG_GET(flag)      VariableBit_Get_BB(((uint32_t)&APP_State), flag)
-#define APP_FLAG_SET(flag)      VariableBit_Set_BB(((uint32_t)&APP_State), flag)
-#define APP_FLAG_RESET(flag)    VariableBit_Reset_BB(((uint32_t)&APP_State), flag)
-
-
 //! @note Data for the application.
 
 #include "main.h"
@@ -55,7 +27,6 @@ COM_InitTypeDef BspCOMInit;
 static uint32_t delay = 250;
 static uint8_t transmitBuffer[sizeof(complex_t) * NPERSEG];
 
-static volatile uint32_t APP_State = 0x00000000;
 
 UART_HandleTypeDef huart1;
 const char *hello = "Hello World!";
@@ -67,6 +38,7 @@ const uint16_t hello_len = 13;
 //! @note Function definitions.
 
 void SystemClock_Config(void);
+void BlinkNTimes(int n);
 
 void PeriphCommonClock_Config(void);
 static void MX_GPIO_Init(void);
@@ -104,7 +76,7 @@ int main(void) {
     BSP_LED_Init(LED_RED);
 
     /* Initialize all transport layers */
-    CPU2_Init();
+    /* CPU2_Init(); */
 
     /* Set the red LED On to indicate that the CPU2 is initializing */
     BSP_LED_On(LED_RED);
@@ -116,15 +88,15 @@ int main(void) {
     ) {
       /* Process pending SYSTEM event coming from CPU2 (if any) */
       BSP_LED_Toggle(LED_BLUE);
-      HAL_Delay(delay);
-      SYS_ProcessEvent();
-      HAL_Delay(delay);
+      /* HAL_Delay(delay); */
+      /* SYS_ProcessEvent(); */
+      /* HAL_Delay(delay); */
       BSP_LED_Toggle(LED_BLUE);
-      HAL_Delay(delay);
+      /* HAL_Delay(delay); */
     }
 
     /* Configure the CPU2 Debug (Optional) */
-    APPD_EnableCPU2();
+    /* APPD_EnableCPU2(); */
 
     /* Set the red LED Off to indicate that the CPU2 is initialized */
     BSP_LED_Off(LED_RED);
@@ -143,7 +115,7 @@ int main(void) {
     BSP_PB_Init(BUTTON_SW3, BUTTON_MODE_EXTI);
 
     /* -- Sample board code to send message over COM1 port ---- */
-    printf("Hello STM!\n");
+    printf("We're up STM!\n");
 
     /* -- Sample board code to switch on leds ---- */
     BSP_LED_Off(LED_BLUE);
@@ -412,8 +384,8 @@ static void SYS_ProcessEvent(void) {
   /* Process pending events - high priority */
   else if (APP_FLAG_GET(APP_FLAG_SHCI_EVENT_PENDING) == 1) {
     APP_FLAG_RESET(APP_FLAG_SHCI_EVENT_PENDING);
-    BlinkNTimes(3);
     shci_user_evt_proc();
+    BlinkNTimes(3);
   } else if (APP_FLAG_GET(APP_FLAG_HCI_EVENT_PENDING) == 1) {
     APP_FLAG_RESET(APP_FLAG_HCI_EVENT_PENDING);
     BlinkNTimes(4);
@@ -477,6 +449,7 @@ static void SYS_ProcessEvent(void) {
     APP_FLAG_RESET(APP_UNKNOWN_17);
     BlinkNTimes(22);
   }
+  return;
 }
 
 /**
