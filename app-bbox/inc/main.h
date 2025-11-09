@@ -12,8 +12,6 @@ extern "C" {
 
 static volatile uint32_t APP_State = 0x00000000;
 
-extern void Error_Handler(void);
-
 
 #define SYS_WKUP2_Pin GPIO_PIN_13
 #define SYS_WKUP2_GPIO_Port GPIOC

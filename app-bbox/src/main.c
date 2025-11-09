@@ -12,15 +12,13 @@
 #include "lib.h"
 #include "bbox_ble.h"
 #include "cpu2.h"
+#include"fram.h"
+
+#include "sys/panic.h"
 
 
 //! @note Application definitions.
 //! @note Data for the application.
-
-#include "main.h"
-#include "stm32wbxx_hal_rcc.h"
-
-#include"fram.h"
 
 
 COM_InitTypeDef BspCOMInit;
@@ -44,8 +42,6 @@ void PeriphCommonClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 
-static void SYS_ProcessEvent(void);  // see handl_cpu2_event.c
-
 
 /**
   * @brief  The application entry point.
@@ -68,7 +64,6 @@ int main(void) {
         Error_Handler();
     }
 
-
     /* Initialize leds */
 
     BSP_LED_Init(LED_BLUE);
@@ -76,7 +71,7 @@ int main(void) {
     BSP_LED_Init(LED_RED);
 
     /* Initialize all transport layers */
-    /* CPU2_Init(); */
+    CPU2_Init();
 
     /* Set the red LED On to indicate that the CPU2 is initializing */
     BSP_LED_On(LED_RED);
@@ -108,11 +103,6 @@ int main(void) {
     if (BSP_COM_Init(COM1, &BspCOMInit) != BSP_ERROR_NONE) {
         Error_Handler();
     }
-
-    /* Initialize USER push-button, will be used to trigger an interrupt each time it's pressed.*/
-    BSP_PB_Init(BUTTON_SW1, BUTTON_MODE_EXTI);
-    BSP_PB_Init(BUTTON_SW2, BUTTON_MODE_EXTI);
-    BSP_PB_Init(BUTTON_SW3, BUTTON_MODE_EXTI);
 
     /* -- Sample board code to send message over COM1 port ---- */
     printf("We're up STM!\n");
@@ -163,7 +153,6 @@ int main(void) {
 
     //! @note Error state for the Device.
     Error_Handler();
-
 }
 
 /**
@@ -452,28 +441,7 @@ static void SYS_ProcessEvent(void) {
   return;
 }
 
-/**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
-void Error_Handler(void)
-{
-  /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-        BSP_LED_Toggle(LED_BLUE);
-        HAL_Delay(delay);
 
-        BSP_LED_Toggle(LED_GREEN);
-        HAL_Delay(delay);
-
-        BSP_LED_Toggle(LED_RED);
-        HAL_Delay(delay);
-  }
-  /* USER CODE END Error_Handler_Debug */
-}
 #ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
