@@ -367,8 +367,8 @@ class MFCCView(APIView):
             mfcc = dct(filter_banks, type=2, axis=1, norm='ortho')[:, :n_mfcc]
             # convert to python lists for JSON
             mfcc_list = mfcc.tolist()
-            mfcc_mean = np.mean(mfcc, axis=1)
-            mfcc_std = np.std(mfcc, axis=1)
+            mfcc_mean = np.mean(mfcc, axis=0)
+            mfcc_std = np.std(mfcc, axis=0)
             mfcc_features = {
                 'mean': mfcc_mean.tolist(),
                 'std': mfcc_std.tolist()
