@@ -82,13 +82,14 @@ class TimeSeriesEndpointView(APIView):
             values = data['values']
             print(values)
             for value in values:
-                entries.append({
-                    "session":session,
-                    "value":float(value)})
+                TimeSeriesEntry.objects.create(
+                    session=session,
+                    value=value
+                )
             
             
             # Bulk create all entries
-            TimeSeriesEntry.objects.bulk_create(entries)
+            # TimeSeriesEntry.objects.bulk_create(entries)
             
             return JsonResponse({
                 "msg": "Data saved successfully",
