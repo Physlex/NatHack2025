@@ -121,13 +121,14 @@ class SessionsByUserView(APIView):
     """
     def get(self, request, uid):
         try:
-            sessions_qs = RecordingSession.objects.filter(user_id=uid).annotate(entries_count=Count('entries')).values('id', 'name', 'entries_count')
+            sessions_qs = RecordingSession.objects.filter(user_id=uid)
             sessions = list(sessions_qs)
             return JsonResponse({
                 "user_id": uid,
                 "sessions_count": len(sessions),
                 "sessions": sessions
             }, status=status.HTTP_200_OK)
+       
         except Exception as e:
             return JsonResponse({
                 "msg": f"Server error: {str(e)}",
