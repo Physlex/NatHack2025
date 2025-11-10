@@ -3,10 +3,12 @@ import { useEffect, useState } from "react"
 import RecordingListItem from "../components/RecordingListItem";
 import { testRecordings } from "../lib/constants";
 import { Button } from "flowbite-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   const [data, setData] = useState([])
   const [userData, setUserData] = useState({})
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     setData(testRecordings)
@@ -38,12 +40,11 @@ export default function Dashboard() {
               className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none"
             />
             <div className="flex flex-row items-center justify-between gap-4 h-full">
-              {/* Brain line art background */}
-              <img
+              {/* <img
                 src="/assets/images/recording-eeg.png"
                 alt="Recording EEG"
                 className="absolute right-4 top-[5%] h-80 pointer-events-none z-0"
-              />
+              /> */}
               <div className="relative z-10 h-full justify-center flex flex-col flex-1">
                 <h5 className="text-2xl font-bold tracking-tight text-white">
                   Welcome
@@ -84,7 +85,8 @@ export default function Dashboard() {
             </h1>
             <Button
               color="alternative"
-              className="cursor-pointer"
+              className="cursor-pointer transition-all duration-200"
+              onClick={() => navigate('/recording')}
             >
               View All
             </Button>
