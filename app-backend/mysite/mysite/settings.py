@@ -11,7 +11,12 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+import environ
+import dj_database_url
 
+env = environ.Env()
+environ.Env.read_env()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -47,9 +52,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'store',
+    'bboxauth',
     'django.contrib.postgres',
-    'corsheaders'
+    'corsheaders',
 ]
+
+# Tell Django to use the custom user model from the bboxauth app
+AUTH_USER_MODEL = 'bboxauth.CustomUser'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -60,9 +69,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'mysite.urls'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 TEMPLATES = [
     {
@@ -86,22 +97,38 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mysite',
-        'USER': 'postgres',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',  # if Django runs in docker-compose, set to 'db'
-        'PORT': '5432',
+# Prefer Heroku-provided DATABASE_URL. If not present, fall back to Stackhero
+# environment variables (used previously). If neither is available, use a
+# local sqlite database for development.
+DATABASE_URL = os.environ.get('DATABASE_URL')
+print('database url', DATABASE_URL)
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
     }
-
-}
-
-# Note: the TimescaleDB extension must be installed on the Postgres server.
-# If using the provided docker-compose Timescale image, start it with `docker compose up -d`
-# then either run `CREATE EXTENSION IF NOT EXISTS timescaledb;` in that DB or keep the
-# migration that runs that SQL (requires superuser).
+else:
+    # Legacy Stackhero configuration (kept for compatibility)
+    
+    if env('STACKHERO_POSTGRESQL_HOST'):
+        print("Using Stackhero Postgres configuration")
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'HOST': env('STACKHERO_POSTGRESQL_HOST'),
+                'PORT': env('STACKHERO_POSTGRESQL_PORT'),
+                'OPTIONS': {
+                    'sslmode': 'require',
+                },
+                'NAME': 'admin',
+                'USER': 'admin',
+                'PASSWORD': env('STACKHERO_POSTGRESQL_ADMIN_PASSWORD')
+            }
+        }
+    else:
+        # Local sqlite fallback for development
+        DATABASES = {
+            'default': dj_database_url.config(default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
+        }
 
 
 # Password validation
