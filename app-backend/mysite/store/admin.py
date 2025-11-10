@@ -4,8 +4,9 @@ from .models import RecordingSession, TimeSeriesEntry
 # Register your models here.
 @admin.register(RecordingSession)
 class RecordingSessionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'user')
+    list_display = ('id', 'name', 'user', 'date')
 
 @admin.register(TimeSeriesEntry)
 class TimeSeriesEntryAdmin(admin.ModelAdmin):
     list_display = ('id', 'session', 'value')
+
