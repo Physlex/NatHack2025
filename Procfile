@@ -1,1 +1,1 @@
-web: gunicorn mysite.wsgi:application --bind 0.0.0.0:$PORT --workers 3 --chdir app-backend
+web: gunicorn mysite.wsgi:application --bind 0.0.0.0:$PORT --workers 3 --chdir app-backend/mysite
