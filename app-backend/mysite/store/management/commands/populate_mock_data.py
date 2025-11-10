@@ -29,7 +29,7 @@ class Command(BaseCommand):
 
         for u in users:
             for s_idx in range(sessions_per):
-                session = RecordingSession.objects.create(name=f'Mock Session {u.username}-{s_idx}', user=u)
+                session = RecordingSession.objects.create(name=f'Mock Session {u.name}-{s_idx}', user=u)
 
                 # Create time series entries across multiple frequencies
                 entries = []
