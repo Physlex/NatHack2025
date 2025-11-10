@@ -108,9 +108,8 @@ int main(void) {
     if (BSP_COM_Init(COM1, &BspCOMInit) != BSP_ERROR_NONE) {
         Error_Handler();
     }
-    // BSP_LED_On(LED_GREEN);
 
-    
+    BSP_LED_On(LED_GREEN);   
 
     /* Initialize USER push-button, will be used to trigger an interrupt each time it's pressed.*/
     BSP_PB_Init(BUTTON_SW1, BUTTON_MODE_EXTI);
