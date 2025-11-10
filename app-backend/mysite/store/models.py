@@ -15,4 +15,4 @@ class TimeSeriesEntry(models.Model):
     value = models.FloatField()
 
     def __str__(self):
-        return f"{self.timestamp}: {self.value}"
+        return f"{self.frequency}: {self.value}"
