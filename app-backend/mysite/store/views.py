@@ -78,9 +78,9 @@ class TimeSeriesEndpointView(APIView):
             )
             
             # Create time series entries
-            entries = []
-            values = [int(x) for x in data.get('values')]
-            print(values)
+
+            values = [int(x) for x in data.getList('values')]
+            print("here: ", data, values)
             for value in values:
                 TimeSeriesEntry.objects.create(
                     session=session,
