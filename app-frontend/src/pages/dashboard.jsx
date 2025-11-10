@@ -7,10 +7,11 @@ import { requests } from "../lib/constants";
 
 export default function Dashboard() {
   const [data, setData] = useState([])
-  const { user } = useGlobalContext();
+  const { user, setLoading } = useGlobalContext();
   const navigate = useNavigate();
 
   const fetchData = async () => {
+    setLoading(true)
     fetch('/api' + requests.sessions + user.id + '/', {
       method: 'GET',
       headers: {
@@ -26,7 +27,8 @@ export default function Dashboard() {
         }
       })
       .then(result => {
-        setData(result.sessions);
+        setData(result.sessions.reverse());
+        setLoading(false)
       })
       .catch(error => {
         console.error('Error:', error);

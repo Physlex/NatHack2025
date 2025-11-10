@@ -1,18 +1,40 @@
-import { Button } from "flowbite-react";
-import { testRecordings } from "../../lib/constants";
 import { useEffect, useState } from "react";
 import RecordingListItem from "../../components/RecordingListItem";
+import { requests } from "../../lib/constants";
+import { useGlobalContext } from "../../contexts/GlobalContext";
 
 export default function Recordings() {
   const [recordings, setRecordings] = useState([]);
+  const { user, setLoading } = useGlobalContext();
 
-  const fetchRecordings = async () => {
-    setRecordings(testRecordings);
+  const fetchData = async () => {
+    setLoading(true)
+    fetch('/api' + requests.sessions + user.id + '/', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+      .then(async response => {
+        if (response.ok) {
+          return await response.json();
+        } else {
+          console.log(response.body);
+          throw new Error('Failed to fetch recordings');
+        }
+      })
+      .then(result => {
+        setRecordings(result.sessions.reverse());
+        setLoading(false)
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
   }
 
   useEffect(() => {
-    fetchRecordings();
-  }, []);
+    fetchData()
+  }, [])
 
   return (
     <div className="bg-['#f2f8fc'] min-h-full flex flex-col px-8 py-12">
