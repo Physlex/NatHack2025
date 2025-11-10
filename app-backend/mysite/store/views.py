@@ -4,7 +4,7 @@ from django.views.decorators.http import require_GET
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework import status
-from .models import RecordingSession, TimeSeriesEntry
+from .models import RecordingSession, TimeSeriesEntry, EventRelatedPotential
 from datetime import datetime
 from django.views.generic import TemplateView
 from django.contrib import messages
@@ -190,3 +190,45 @@ class SpectrogramView(APIView):
             "frequencies": freqs,
             "data": data
         }, status=status.HTTP_200_OK)
+
+
+class ERPView(APIView):
+    """List and create Event-Related Potentials for a session.
+
+    GET /spectrogram/<sid>/erps/  -> list ERPs for session
+    POST /spectrogram/<sid>/erps/ -> create ERP rows for session with JSON body
+    """
+    def get(self, request, sid):
+        session = get_object_or_404(RecordingSession, id=sid)
+        erps = session.erps.all()
+        out = []
+        for erp in erps:
+            out.append({
+                'id': erp.id,
+                'latency': erp.latency,
+                'event_time': erp.event_time.isoformat() if erp.event_time else None,
+                'channel': erp.channel,
+                'values': erp.values
+            })
+        return JsonResponse({'session_id': sid, 'erps': out}, status=status.HTTP_200_OK)
+
+    def post(self, request, sid):
+        session = get_object_or_404(RecordingSession, id=sid)
+        data = request.data
+        # Expect either a single ERP or a list of ERPs
+        items = data if isinstance(data, list) else [data]
+        created = []
+        for itm in items:
+            latency = itm.get('latency')
+            event_time = itm.get('event_time')
+            channel = itm.get('channel')
+            values = itm.get('values')
+            erp = EventRelatedPotential.objects.create(
+                session=session,
+                latency=latency,
+                event_time=event_time,
+                channel=channel,
+                values=values
+            )
+            created.append({'id': erp.id, 'channel': erp.channel})
+        return JsonResponse({'created': created}, status=status.HTTP_201_CREATED)

@@ -32,3 +32,22 @@ class SpectrogramData(models.Model):
 
     def __str__(self):
         return f"SpectrogramRow(session={self.session_id}, freq={self.frequency})"
+
+class EventRelatedPotential(models.Model):
+    """Store event-related potential (ERP) rows for a RecordingSession.
+
+    Each record represents one ERP waveform (e.g., for one event and channel).
+    """
+    session = models.ForeignKey(RecordingSession, on_delete=models.CASCADE, related_name='erps')
+    # time since session start in seconds (or None if using event_time)
+    latency = models.FloatField(null=True, blank=True)
+    # optional absolute event time
+    event_time = models.DateTimeField(null=True, blank=True)
+    channel = models.CharField(max_length=32, null=True, blank=True)
+    values = models.JSONField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['latency', 'channel']
+
+    def __str__(self):
+        return f"ERP(session={self.session_id}, channel={self.channel}, latency={self.latency})"
