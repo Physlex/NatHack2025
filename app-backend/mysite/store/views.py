@@ -7,10 +7,10 @@ from rest_framework.views import APIView
 
 class TimeSeriesEndpointView(APIView):
     
-    def get(self, request):
-        session =  request.data["sid"]
-        print("Session Id:", session)
-        return JsonResponse({"hello": session})
+    def get(self, request, sid):
+        
+        print("Session Id:", sid)
+        return JsonResponse({"hello": sid})
     
     def post(self, request):
         data = request.data
