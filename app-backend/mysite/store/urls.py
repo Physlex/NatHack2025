@@ -4,8 +4,10 @@ from . import views
 app_name = "store"
 
 urlpatterns = [
-    # GET: /store/endpoint/<sid>/ - Get data for a specific session
-    # POST: /store/endpoint/ - Create new time series entries
-    path("endpoint/<int:sid>/", views.TimeSeriesEndpointView.as_view(), name="endpoint_get"),
+    # Web form for uploading data
+    path("upload/", views.UploadFormView.as_view(), name="upload_form"),
+    
+    # API endpoints
     path("endpoint/", views.TimeSeriesEndpointView.as_view(), name="endpoint_create"),
+    path("endpoint/<int:sid>/", views.TimeSeriesEndpointView.as_view(), name="endpoint_get"),
 ]
