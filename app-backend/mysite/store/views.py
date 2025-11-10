@@ -65,7 +65,7 @@ class TimeSeriesEndpointView(APIView):
 
     def post(self, request):
         data = request.data
-        check_keys = {"segn", "len", "values"}
+        check_keys = {"segn", "len", "values", "uid"}
         
         if not set(data.keys()) >= check_keys:
             
@@ -74,7 +74,8 @@ class TimeSeriesEndpointView(APIView):
         try:
             # Get or create the recording session
             session, created = RecordingSession.objects.create(
-                defaults={'name': f'New Session {data["segn"]}'}
+                defaults={'name': f'New Session {data["segn"]}'},
+                user_id=data['uid']
             )
             
             # Create time series entries
