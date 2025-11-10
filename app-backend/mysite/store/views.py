@@ -369,12 +369,12 @@ class MFCCView(APIView):
             mfcc_list = mfcc.tolist()
             mfcc_mean = np.mean(mfcc, axis=1)
             mfcc_std = np.std(mfcc, axis=1)
-            mfcc_featires = {
+            mfcc_features = {
                 'mean': mfcc_mean.tolist(),
                 'std': mfcc_std.tolist()
             }
 
-            return JsonResponse({"session_id": sid, "mfcc": mfcc_list}, status=status.HTTP_200_OK)
+            return JsonResponse({"session_id": sid, "mfcc": mfcc_features}, status=status.HTTP_200_OK)
         except Exception as e:
             print('mfcc error', e)
             return JsonResponse({"msg": f"Error computing MFCCs: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
