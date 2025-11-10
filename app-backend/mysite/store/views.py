@@ -84,7 +84,7 @@ class TimeSeriesEndpointView(APIView):
             print("here: ", data, values)
             for value in values:
                 TimeSeriesEntry.objects.create(
-                    timestamp=value[0],
+                    frequency=value[0],
                     session=session,
                     value=value[1]
                 )

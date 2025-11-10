@@ -10,6 +10,7 @@ class RecordingSession(models.Model):
     
 class TimeSeriesEntry(models.Model):
     id = models.AutoField(primary_key=True)
+    frequency = models.FloatField()
     session = models.ForeignKey(RecordingSession, on_delete=models.CASCADE, related_name='entries', default=None)
     value = models.FloatField()
 
