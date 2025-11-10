@@ -8,6 +8,7 @@ import { AiOutlineHeatMap } from "react-icons/ai";
 import { BiPulse } from "react-icons/bi";
 import { GiBrain } from "react-icons/gi";
 import { formatDate } from "../../../lib/utils";
+import { Periodogram, Spectrogram, ERP } from "../../../components/Chart";
 
 export default function Recording() {
   const { id } = useParams();
@@ -21,7 +22,109 @@ export default function Recording() {
       name: `New Recording ${id}`,
       date: "2024-01-01",
       size: "15MB",
-      mfcc: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      mfcc: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      spectrogramData: [
+        [0.12, 0.25, 0.41, 0.38, 0.22, 0.10, 0.05, 0.02],
+        [0.14, 0.27, 0.45, 0.43, 0.25, 0.11, 0.06, 0.03],
+        [0.10, 0.23, 0.40, 0.37, 0.21, 0.09, 0.05, 0.02],
+        [0.08, 0.21, 0.36, 0.33, 0.19, 0.08, 0.04, 0.02],
+        [0.11, 0.24, 0.42, 0.39, 0.23, 0.10, 0.05, 0.03],
+        [0.09, 0.22, 0.38, 0.35, 0.20, 0.09, 0.04, 0.02],
+        [0.13, 0.28, 0.47, 0.44, 0.26, 0.12, 0.06, 0.03],
+        [0.15, 0.30, 0.50, 0.46, 0.27, 0.13, 0.07, 0.03],
+        [0.12, 0.26, 0.43, 0.40, 0.24, 0.11, 0.05, 0.02],
+        [0.10, 0.23, 0.39, 0.36, 0.21, 0.09, 0.04, 0.02],
+        [0.08, 0.20, 0.35, 0.32, 0.18, 0.08, 0.04, 0.01],
+        [0.09, 0.22, 0.38, 0.34, 0.19, 0.08, 0.04, 0.02],
+        [0.11, 0.25, 0.41, 0.37, 0.22, 0.10, 0.05, 0.02],
+        [0.13, 0.27, 0.45, 0.42, 0.25, 0.11, 0.06, 0.03],
+        [0.14, 0.29, 0.48, 0.44, 0.26, 0.12, 0.06, 0.03],
+        [0.12, 0.25, 0.42, 0.39, 0.23, 0.10, 0.05, 0.02],
+        [0.10, 0.22, 0.37, 0.34, 0.19, 0.09, 0.04, 0.02],
+        [0.08, 0.19, 0.33, 0.30, 0.17, 0.07, 0.03, 0.01],
+        [0.09, 0.21, 0.36, 0.32, 0.18, 0.08, 0.04, 0.02],
+        [0.11, 0.24, 0.40, 0.36, 0.21, 0.09, 0.05, 0.02]
+      ],
+      periodogramData: [
+        { frequency: 1, power: 0.03 },
+        { frequency: 2, power: 0.05 },
+        { frequency: 3, power: 0.09 },
+        { frequency: 4, power: 0.12 },
+        { frequency: 5, power: 0.18 },
+        { frequency: 6, power: 0.24 },
+        { frequency: 7, power: 0.32 },
+        { frequency: 8, power: 0.45 },
+        { frequency: 9, power: 0.52 },
+        { frequency: 10, power: 0.48 },
+        { frequency: 11, power: 0.36 },
+        { frequency: 12, power: 0.29 },
+        { frequency: 13, power: 0.23 },
+        { frequency: 14, power: 0.19 },
+        { frequency: 15, power: 0.16 },
+        { frequency: 16, power: 0.14 },
+        { frequency: 17, power: 0.12 },
+        { frequency: 18, power: 0.11 },
+        { frequency: 19, power: 0.10 },
+        { frequency: 20, power: 0.09 },
+        { frequency: 21, power: 0.08 },
+        { frequency: 22, power: 0.07 },
+        { frequency: 23, power: 0.07 },
+        { frequency: 24, power: 0.06 },
+        { frequency: 25, power: 0.05 },
+        { frequency: 26, power: 0.05 },
+        { frequency: 27, power: 0.04 },
+        { frequency: 28, power: 0.04 },
+        { frequency: 29, power: 0.03 },
+        { frequency: 30, power: 0.03 },
+        { frequency: 31, power: 0.03 },
+        { frequency: 32, power: 0.02 },
+        { frequency: 33, power: 0.02 },
+        { frequency: 34, power: 0.02 },
+        { frequency: 35, power: 0.02 },
+        { frequency: 36, power: 0.02 },
+        { frequency: 37, power: 0.02 },
+        { frequency: 38, power: 0.02 },
+        { frequency: 39, power: 0.02 },
+        { frequency: 40, power: 0.02 }
+      ],
+      erpData: [
+        { time: -200, voltage: 0.2 },
+        { time: -180, voltage: 0.1 },
+        { time: -160, voltage: 0.0 },
+        { time: -140, voltage: -0.1 },
+        { time: -120, voltage: -0.1 },
+        { time: -100, voltage: 0.0 },
+        { time: -80, voltage: 0.1 },
+        { time: -60, voltage: 0.2 },
+        { time: -40, voltage: 0.3 },
+        { time: -20, voltage: 0.4 },
+        { time: 0, voltage: 0.8 },
+        { time: 20, voltage: 1.5 },
+        { time: 40, voltage: 2.1 },
+        { time: 60, voltage: 2.5 },
+        { time: 80, voltage: 2.3 },
+        { time: 100, voltage: 1.8 },
+        { time: 120, voltage: 1.0 },
+        { time: 140, voltage: 0.4 },
+        { time: 160, voltage: -0.2 },
+        { time: 180, voltage: -0.6 },
+        { time: 200, voltage: -1.0 },
+        { time: 220, voltage: -0.8 },
+        { time: 240, voltage: -0.4 },
+        { time: 260, voltage: -0.2 },
+        { time: 280, voltage: 0.1 },
+        { time: 300, voltage: 0.3 },
+        { time: 320, voltage: 0.4 },
+        { time: 340, voltage: 0.5 },
+        { time: 360, voltage: 0.3 },
+        { time: 380, voltage: 0.1 },
+        { time: 400, voltage: 0.0 },
+        { time: 420, voltage: -0.1 },
+        { time: 440, voltage: -0.1 },
+        { time: 460, voltage: -0.1 },
+        { time: 480, voltage: 0.0 },
+        { time: 500, voltage: 0.1 }
+      ]
     });
   }
 
@@ -125,7 +228,15 @@ export default function Recording() {
             </ButtonGroup>
           </div>
           <div className="w-full h-full bg-neutral-50 rounded flex items-center justify-center">
-            <span className="text-gray-400">Spectrogram</span>
+            {
+              chartType === 'spectrogram' ? (
+                <Spectrogram data={recordingData.spectrogramData} />
+              ) : chartType === 'periodogram' ? (
+                <Periodogram data={recordingData.periodogramData} />
+              ) : (
+                <ERP data={recordingData.erpData} />
+              )
+            }
           </div>
         </div>
       </div>
