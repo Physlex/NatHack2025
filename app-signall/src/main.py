@@ -8,26 +8,27 @@ import serial.tools.list_ports
 
 
 PORT_NAME = '/dev/ttyUSB0'
-url = "https://brain-box-68c92647e146.herokuapp.com/store/endpoint/"
+url = "https://brain-box-68c92647e146.herokuapp.com/api/store/endpoint/"
 
 try:
     with serial.Serial(PORT_NAME, 9600) as ser:
         print(ser.name, ser.port)
         while True:
-            data: bytes = bytes()
+            data_in: bytes = bytes()
+            user_id = "9d201a1f-9929-4f16-b077-60406275dde7"
             try:
-                command = int(input("Pick a command: \n(1)Read \n(2)Save to DB \n(3)Write to MC \n(4)Exit "))
+                command = int(input("Pick a command: \n(1)Read \n(2)Save to DB \n(4)Exit "))
                 if command == 1:
                     bitcommand = 0x01
 
 
                     try:
                         # Read until newline character
-                        data = ser.read(2048);
-                        print(data)
+                        data_in = ser.read(2048);
+                        print(data_in)
 
                         # Decode bytes to string and strip whitespace/null characters
-                        message = data.decode('ascii').rstrip('\n\0')
+                        message = data_in.decode('ascii').rstrip('\n\0')
 
                         # Print the message
                         print(message)
@@ -39,7 +40,7 @@ try:
 
                 elif command == 2:
                     values = []
-                    print("Enter what you want to write (bin, power) enter an empty line to quit: ")
+                    print(f"Enter what you want to write (bin, power) enter an empty line to quit: (User {user_id})")
                     msg = input("> ")
                     while msg != "":
                         values.append([float(x.strip()) for x in msg.split(",") if x.strip()][:2])
@@ -48,8 +49,10 @@ try:
                     data = {
                         "values": values,
                         "len" : len(msg),
-                        "segn" : 45
+                        "segn" : 45,
+                        "uid" : user_id
                     }
+                    print(data)
                     response = requests.post(url, data=data)
                     print("Status code:", response.status_code)
                     print("Response body:", response.text)
@@ -67,8 +70,8 @@ try:
 
                         # Read response
                         if ser.in_waiting > 0:
-                            data = ser.readline()
-                            response = data.decode('ascii').rstrip('\n\0')
+                            data_in = ser.readline()
+                            response = data_in.decode('ascii').rstrip('\n\0')
                             print(f"Received: {response}")
 
                     except serial.SerialException as e:
