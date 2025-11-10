@@ -136,6 +136,7 @@ class SessionsByUserView(APIView):
             }, status=status.HTTP_200_OK)
        
         except Exception as e:
+            print(e)
             return JsonResponse({
                 "msg": f"Server error: {str(e)}",
                 "code": status.HTTP_500_INTERNAL_SERVER_ERROR
