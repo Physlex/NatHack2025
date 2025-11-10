@@ -98,7 +98,7 @@ open http://localhost:5173
 
 ### Development Team
 
-- **Project Lead**: Alex Willet
+- **Project Lead**: Alexander Williams-Letondre
 - **Embedded Engineering**: Ayrton Chilibeck
 - **Hardware/Software Interface Engineering**: Balpreet Juneja
 - **Software Development**: Tammy Young, Ahmed Keshta
