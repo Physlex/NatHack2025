@@ -10,7 +10,6 @@
 #include "app_debug.h"
 
 #include "lib.h"
-
 #include "bbox_ble.h"
 #include "cpu2.h"
 
@@ -105,38 +104,35 @@ int main(void) {
     BSP_LED_Init(LED_RED);
 
     /* Initialize all transport layers */
-    CPU2_Init();
+    // CPU2_Init();
 
     /* Set the red LED On to indicate that the CPU2 is initializing */
-    BSP_LED_On(LED_RED);
+    // BSP_LED_On(LED_RED);
 
     /* Wait until the CPU2 gets initialized */
-    while(
-        (CPU2_BB_FLAG_GET(APP_State, APP_FLAG_CPU2_INITIALIZED) == 0) ||
-        (CPU2_BB_FLAG_GET(APP_State, APP_FLAG_WIRELESS_FW_RUNNING) == 0)
-    ) {
-      /* Process pending SYSTEM event coming from CPU2 (if any) */
-      BSP_LED_Toggle(LED_BLUE);
-      HAL_Delay(delay);
-      SYS_ProcessEvent();
-      HAL_Delay(delay);
-      BSP_LED_Toggle(LED_BLUE);
-      HAL_Delay(delay);
-    }
+    // while(
+    //     (CPU2_BB_FLAG_GET(APP_State, APP_FLAG_CPU2_INITIALIZED) == 0) ||
+    //     (CPU2_BB_FLAG_GET(APP_State, APP_FLAG_WIRELESS_FW_RUNNING) == 0)
+    // ) {
+    //   /* Process pending SYSTEM event coming from CPU2 (if any) */
+    //   BSP_LED_Toggle(LED_BLUE);
+    //   HAL_Delay(delay);
+    //   SYS_ProcessEvent();
+    //   HAL_Delay(delay);
+    //   BSP_LED_Toggle(LED_BLUE);
+    //   HAL_Delay(delay);
+    // }
 
     /* Configure the CPU2 Debug (Optional) */
-    APPD_EnableCPU2();
+    // APPD_EnableCPU2();
 
     /* Set the red LED Off to indicate that the CPU2 is initialized */
-    BSP_LED_Off(LED_RED);
+    // BSP_LED_Off(LED_RED);
 
     /* Set the green LED On to indicate that the wireless stack FW is running */
-    BSP_LED_On(LED_GREEN);
+    // BSP_LED_On(LED_GREEN);
 
-    /* Initialize COM port */
-    if (BSP_COM_Init(COM1, &BspCOMInit) != BSP_ERROR_NONE) {
-        Error_Handler();
-    }
+    
 
     /* Initialize USER push-button, will be used to trigger an interrupt each time it's pressed.*/
     BSP_PB_Init(BUTTON_SW1, BUTTON_MODE_EXTI);
@@ -144,7 +140,7 @@ int main(void) {
     BSP_PB_Init(BUTTON_SW3, BUTTON_MODE_EXTI);
 
     /* -- Sample board code to send message over COM1 port ---- */
-    printf("Hello STM!\n");
+    // printf("Hello STM!\n");
 
     /* -- Sample board code to switch on leds ---- */
     BSP_LED_Off(LED_BLUE);
@@ -157,38 +153,38 @@ int main(void) {
     ble_init(&ble_pool);
 
     while (1) {
-        printf("Hello STM!\n");
+        printf("H");
         BSP_LED_Toggle(LED_BLUE);
         HAL_Delay(delay);
-        //! @note Buffer a batch of EEG data (two real signals)
+        // //! @note Buffer a batch of EEG data (two real signals)
 
-        float32_t *data = 0;
-        const int8_t ble_ec = ble_fill_buffer(&ble_pool, data);
-        if (ble_ec < 0) {
-            printf("Failed to fill the ble buffer. Reason: %d\n", ble_ec);
-            break;
-        }
+        // float32_t *data = 0;
+        // const int8_t ble_ec = ble_fill_buffer(&ble_pool, data);
+        // if (ble_ec < 0) {
+        //     printf("Failed to fill the ble buffer. Reason: %d\n", ble_ec);
+        //     break;
+        // }
 
-        ////! @note Process the batched data using the rfft.
-        const int8_t spec_res = spectral_rfft((complex_t *)transmitBuffer, data);
-        if (spec_res < 0) {
-            printf("Failed fourier transform on data\n");
-            break;
-        }
+        // ////! @note Process the batched data using the rfft.
+        // const int8_t spec_res = spectral_rfft((complex_t *)transmitBuffer, data);
+        // if (spec_res < 0) {
+        //     printf("Failed fourier transform on data\n");
+        //     break;
+        // }
 
-        switch (spec_res) {
-            case SPEC_TRANSFORMED: {
-                //! @note Alert the system we can now do something with the transmit
-                //!       data.
-                fram_save(transmitBuffer, sizeof(complex_t) * NPERSEG);
-                break;
-            };
+        // switch (spec_res) {
+        //     case SPEC_TRANSFORMED: {
+        //         //! @note Alert the system we can now do something with the transmit
+        //         //!       data.
+        //         fram_save(transmitBuffer, sizeof(complex_t) * NPERSEG);
+        //         break;
+        //     };
 
-            default: {
-                printf("spectral_rfft: Invalid state %d\n", spec_res);
-                break;
-            };
-        }
+        //     default: {
+        //         printf("spectral_rfft: Invalid state %d\n", spec_res);
+        //         break;
+        //     };
+        // }
     }
 
     //! @note Error state for the Device.
