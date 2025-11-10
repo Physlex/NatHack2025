@@ -60,7 +60,7 @@ class TimeSeriesEndpointView(APIView):
     
     def get(self, request, sid):
         session = get_object_or_404(RecordingSession, id=sid)
-        entries = session.entries.all().values('timestamp', 'value')
+        entries = session.entries.all().values('frequency', 'value')
         return JsonResponse({"session_id": sid, "name": session.name, "entries": list(entries)})
 
     def post(self, request):
