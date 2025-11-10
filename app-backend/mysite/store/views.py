@@ -80,13 +80,12 @@ class TimeSeriesEndpointView(APIView):
             # Create time series entries
             entries = []
             values = data['values']
-            
+            print(values)
             for value in values:
-                entry = TimeSeriesEntry(
-                    session=session,
-                    value=float(value)
-                )
-                entries.append(entry)
+                entries.append({
+                    "session":session,
+                    "value":float(value)})
+            
             
             # Bulk create all entries
             TimeSeriesEntry.objects.bulk_create(entries)
