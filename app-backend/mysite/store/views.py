@@ -87,7 +87,7 @@ class TimeSeriesEndpointViewCreate(APIView):
             
             # Create time series entries
 
-            values = [int(x) for x in data.getlist('values')]
+            values = [float(x) for x in data.getlist('values')]
             print("here: ", data, values)
             for value in values:
                 TimeSeriesEntry.objects.create(
