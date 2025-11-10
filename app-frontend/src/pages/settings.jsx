@@ -25,24 +25,24 @@ export default function Settings() {
 
       <div className="max-w-4xl space-y-6">
         <Card className='shadow-none'>
-          <h2 className="text-xl font-semibold mb-4">System Information</h2>
+          <h2 className="text-xl font-semibold mb-0">System Information</h2>
 
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-gray-600">Application Version</span>
               <span className="font-medium">1.0.0</span>
             </div>
-            <div className="flex justify-between">
+            {/* <div className="flex justify-between">
               <span className="text-gray-600">Storage Used</span>
               <span className="font-medium">2.4 GB / 10 GB</span>
-            </div>
+            </div> */}
           </div>
         </Card>
         <Card className='shadow-none'>
-          <h2 className="text-xl font-semibold mb-4">Account</h2>
+          <h2 className="text-xl font-semibold mb-0">Account</h2>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between py-3">
+            {/* <div className="flex items-center justify-between py-3">
               <div className="flex flex-col">
                 <Label className="text-sm font-medium">Export Data</Label>
                 <p className="text-sm text-gray-500">Download all your recordings and data</p>
@@ -50,10 +50,10 @@ export default function Settings() {
               <Button color="light" size="sm" className='cursor-pointer transition-all duration-200'>
                 Export
               </Button>
-            </div>
+            </div> */}
 
-            <div className="border-t border-neutral-200/80 pt-4">
-              <div className="flex items-center justify-between py-3">
+            <div className="">
+              <div className="flex items-center justify-between py-0">
                 <div className="flex flex-col">
                   <Label className="text-sm font-medium text-red-600">Sign Out</Label>
                   <p className="text-sm text-gray-500">Sign out of your account</p>
