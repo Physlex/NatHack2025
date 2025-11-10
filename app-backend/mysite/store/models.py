@@ -16,3 +16,19 @@ class TimeSeriesEntry(models.Model):
 
     def __str__(self):
         return f"{self.frequency}: {self.value}"
+
+class SpectrogramData(models.Model):
+    """Store precomputed spectrogram data per frequency for a RecordingSession.
+
+    Each instance represents one frequency's magnitude/time series for a session.
+    """
+    session = models.ForeignKey(RecordingSession, on_delete=models.CASCADE, related_name='spectrogram_rows')
+    frequency = models.FloatField()
+    values = models.JSONField(null=True, blank=True)
+
+    class Meta:
+        unique_together = (('session', 'frequency'),)
+        ordering = ['frequency']
+
+    def __str__(self):
+        return f"SpectrogramRow(session={self.session_id}, freq={self.frequency})"

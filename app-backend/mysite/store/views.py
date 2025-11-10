@@ -151,3 +151,42 @@ class SessionsByUserView(APIView):
                 "msg": f"Server error: {str(e)}",
                 "code": status.HTTP_500_INTERNAL_SERVER_ERROR
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class SpectrogramView(APIView):
+    """Return spectrogram-style data for a recording session.
+
+    Response JSON format:
+    {
+      "session_id": <sid>,
+      "frequencies": [f1, f2, ...],
+      "data": [[v11, v12, ...], [v21, v22, ...], ...]
+    }
+
+    Each inner array in `data` corresponds to the frequency at the same index in `frequencies`.
+    """
+    def get(self, request, sid):
+        session = get_object_or_404(RecordingSession, id=sid)
+        qs = TimeSeriesEntry.objects.filter(session=session).order_by('id')
+
+        if not qs.exists():
+            return JsonResponse({
+                "session_id": sid,
+                "frequencies": [],
+                "data": []
+            }, status=status.HTTP_200_OK)
+
+        from collections import defaultdict
+        freq_map = defaultdict(list)
+        for e in qs:
+            # ensure frequency is JSON-serializable (float)
+            freq_map[float(e.frequency)].append(e.value)
+
+        freqs = sorted(freq_map.keys())
+        data = [freq_map[f] for f in freqs]
+
+        return JsonResponse({
+            "session_id": sid,
+            "frequencies": freqs,
+            "data": data
+        }, status=status.HTTP_200_OK)
