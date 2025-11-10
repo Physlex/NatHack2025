@@ -134,21 +134,22 @@ int main(void) {
         printf("H");
         BSP_LED_Toggle(LED_BLUE);
         HAL_Delay(delay);
+
         // //! @note Buffer a batch of EEG data (two real signals)
 
-        // float32_t *data = 0;
-        // const int8_t ble_ec = ble_fill_buffer(&ble_pool, data);
-        // if (ble_ec < 0) {
-        //     printf("Failed to fill the ble buffer. Reason: %d\n", ble_ec);
-        //     break;
-        // }
+        float32_t *data = 0;
+        const int8_t ble_ec = ble_fill_buffer(&ble_pool, data);
+        if (ble_ec < 0) {
+            printf("Failed to fill the ble buffer. Reason: %d\n", ble_ec);
+            break;
+        }
 
-        // ////! @note Process the batched data using the rfft.
-        // const int8_t spec_res = spectral_rfft((complex_t *)transmitBuffer, data);
-        // if (spec_res < 0) {
-        //     printf("Failed fourier transform on data\n");
-        //     break;
-        // }
+        ////! @note Process the batched data using the rfft.
+        const int8_t spec_res = spectral_rfft((complex_t *)transmitBuffer, data);
+        if (spec_res < 0) {
+            printf("Failed fourier transform on data\n");
+            break;
+        }
 
         switch (spec_res) {
             case SPEC_TRANSFORMED: {
@@ -158,11 +159,11 @@ int main(void) {
                 break;
             };
 
-        //     default: {
-        //         printf("spectral_rfft: Invalid state %d\n", spec_res);
-        //         break;
-        //     };
-        // }
+            default: {
+                printf("spectral_rfft: Invalid state %d\n", spec_res);
+                break;
+            };
+        }
     }
 
     Error_Handler();
