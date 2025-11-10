@@ -154,62 +154,63 @@ int main(void) {
 
     //! @note User code for BLE
 
-    /* ble_pool_t ble_pool; */
-    /* ble_init(&ble_pool); */
+    ble_pool_t ble_pool;
+    ble_init(&ble_pool);
 
     /* Output a message on Hyperterminal using printf function */
     printf("\n\r === UART Printf Example === \n\r");
 
     /* User is prompted to enter characters on terminal input.
        Entered characters are echoed on terminal output until a CR character is entered */
-    fflush (stdout);
-
-    printf("\n\r --> Awaiting Commands\n\r");
-    fflush (stdout);
-
 
     HAL_UART_Receive_IT(&huart1, rxBuffer, RX_BUFFER_SIZE);
+    printf(" --> Awaiting Commands\n\r");
+    fflush (stdout);
     while (1) {
-        printf(" --> Awaiting Commands: %sdata recieved\n\r", dataReceivedFlag ? "" : "no ");
-        fflush (stdout);
         BSP_LED_Toggle(LED_BLUE);
-        HAL_Delay(delay * 8);
+        HAL_Delay(delay);
         //! @note Buffer a batch of EEG data (two real signals)
 
         if (dataReceivedFlag) {
             dataReceivedFlag = 0;
-            printf("Data received\n\r");
+            printf("    ==> Dumping Data\n\r");
             BSP_LED_Toggle(LED_GREEN);
+            // Dump data here
             HAL_Delay(delay * 4);
+            BSP_LED_Toggle(LED_GREEN);
+            BSP_LED_Toggle(LED_RED);
+            printf("    ==> Finished Data Dump\n\r");
+            printf(" --> Awaiting Commands\n\r");
+            fflush (stdout);
         }
 
-        //float32_t *data = 0;
-        //const int8_t ble_ec = ble_fill_buffer(&ble_pool, data);
-        //if (ble_ec < 0) {
-        //    printf("Failed to fill the ble buffer. Reason: %d\n", ble_ec);
-        //    break;
-        //}
+        float32_t *data = 0;
+        const int8_t ble_ec = ble_fill_buffer(&ble_pool, data);
+        if (ble_ec < 0) {
+            printf("Failed to fill the ble buffer. Reason: %d\n", ble_ec);
+            break;
+        }
 
-        //////! @note Process the batched data using the rfft.
-        //const int8_t spec_res = spectral_rfft((complex_t *)transmitBuffer, data);
-        //if (spec_res < 0) {
-        //    printf("Failed fourier transform on data\n");
-        //    break;
-        //}
+        ////! @note Process the batched data using the rfft.
+        const int8_t spec_res = spectral_rfft((complex_t *)transmitBuffer, data);
+        if (spec_res < 0) {
+            printf("Failed fourier transform on data\n");
+            break;
+        }
 
-        //switch (spec_res) {
-        //    case SPEC_TRANSFORMED: {
-        //        //! @note Alert the system we can now do something with the transmit
-        //        //!       data.
-        //        /* fram_save(transmitBuffer, sizeof(complex_t) * NPERSEG); */
-        //        break;
-        //    };
+        switch (spec_res) {
+            case SPEC_TRANSFORMED: {
+                //! @note Alert the system we can now do something with the transmit
+                //!       data.
+                /* fram_save(transmitBuffer, sizeof(complex_t) * NPERSEG); */
+                break;
+            };
 
-        //    default: {
-        //        printf("spectral_rfft: Invalid state %d\n", spec_res);
-        //        break;
-        //    };
-        //}
+            default: {
+                printf("spectral_rfft: Invalid state %d\n", spec_res);
+                break;
+            };
+        }
     }
 
     /* Error_Handler(); */
@@ -438,11 +439,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
       BSP_LED_Toggle(LED_RED);
       dataReceivedFlag = 1;
-      delay = 100;
       break;
     case BUTTON_SW2_PIN:
       /* Change the period to 500 ms */
-      delay = 500;
+      delay = 100;
       break;
     case BUTTON_SW3_PIN:
       /* Change the period to 1000 ms */
