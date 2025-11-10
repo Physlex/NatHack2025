@@ -128,11 +128,21 @@ class SessionsByUserView(APIView):
                     "sessions_count": 0,
                     "sessions": []
                 }, status=status.HTTP_200_OK)
-            sessions = list(sessions_qs)
+
+            # Convert queryset to JSON-serializable list of dicts
+            sessions_data = []
+            for s in sessions_qs:
+                sessions_data.append({
+                    "id": s.id,
+                    "name": s.name,
+                    "user_id": s.user_id,
+                    "entries_count": s.entries.count(),
+                })
+
             return JsonResponse({
                 "user_id": uid,
-                "sessions_count": len(sessions),
-                "sessions": sessions
+                "sessions_count": len(sessions_data),
+                "sessions": sessions_data
             }, status=status.HTTP_200_OK)
        
         except Exception as e:
