@@ -10,12 +10,12 @@ class TimeSeriesEndpointView(APIView):
     def get(self, request, sid):
         
         print("Session Id:", sid)
-        return JsonResponse({"hello": sid})
-    
+        return JsonResponse({"Session Id": sid})
+
     def post(self, request):
         data = request.data
         #add to database?
-        check_keys = set("segn", "len", "values")
+        check_keys = set("segn", "len", "values", "sid")
         if set(data.keys()) == check_keys:
             return JsonResponse({"received_data": data, "code": 200})
         else:
