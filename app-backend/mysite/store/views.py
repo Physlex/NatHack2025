@@ -77,10 +77,10 @@ class TimeSeriesEndpointViewCreate(APIView):
             return JsonResponse({"msg": "Incorrect Format", "code": status.HTTP_400_BAD_REQUEST, "keys": list(data.keys())})
                 
         try:
-            user = get_user_model().objects.get(id=data['uid'])
+            user = get_user_model().objects.get(id=data.get('uid')[0])
             # Get or create the recording session
             session, created = RecordingSession.objects.create(
-                defaults={'name': f'New Session {data["segn"]}'},
+                defaults={'name': f'New Session {data.get("segn")}'},
                 user=user
             )
             
