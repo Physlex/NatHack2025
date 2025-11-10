@@ -1,26 +1,21 @@
-import { requests } from "../lib/constants"
 import { useEffect, useState } from "react"
 import RecordingListItem from "../components/RecordingListItem";
 import { testRecordings } from "../lib/constants";
 import { Button } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
+import { useGlobalContext } from "../contexts/GlobalContext";
 
 export default function Dashboard() {
   const [data, setData] = useState([])
-  const [userData, setUserData] = useState({})
+  const { user } = useGlobalContext();
   const navigate = useNavigate();
 
   const fetchData = async () => {
     setData(testRecordings)
   }
 
-  const fetchUserData = async () => {
-    setUserData({ name: "John Doe", title: "Neuroscientist", image: "" })
-  }
-
   useEffect(() => {
     fetchData()
-    fetchUserData()
   }, [])
 
   return (
@@ -47,7 +42,7 @@ export default function Dashboard() {
               /> */}
               <div className="relative z-10 h-full justify-center flex flex-col flex-1">
                 <h5 className="text-2xl font-bold tracking-tight text-white">
-                  Welcome, {userData.name}!
+                  Welcome, {user.name}!
                 </h5>
                 <p className="font-normal text-white">
                   View your recent activity and insights here.
@@ -60,21 +55,21 @@ export default function Dashboard() {
               Profile
             </h1>
             {
-              userData.image ? (
+              user.image ? (
                 <img
-                  src={userData.image}
+                  src={user.image}
                   alt="User Avatar"
                   className="w-24 h-24 rounded-full mb-4 self-center"
                 />
               ) : (
                 <div className="w-24 h-24 rounded-full bg-gray-300 mb-4 self-center flex items-center justify-center text-3xl text-white">
-                  {userData.name ? userData.name.charAt(0) : "U"}
+                  {user.name ? user.name.charAt(0) : "U"}
                 </div>
               )
             }
-            <h2 className="text-xl font-bold text-center">{userData.name}</h2>
+            <h2 className="text-xl font-bold text-center">{user.name}</h2>
             <div className="text-gray-600 text-center">
-              {userData.title}
+              {user.title}
             </div>
           </div>
         </div>

@@ -9,11 +9,14 @@ import {
   FaSignOutAlt
 } from 'react-icons/fa';
 import { PiWaveSineBold } from "react-icons/pi";
+import { HiExclamationTriangle } from 'react-icons/hi2';
 import NavItem from './NavItem';
 import { useGlobalContext } from '../contexts/GlobalContext';
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'flowbite-react';
 
 export default function SideNav() {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { logout } = useGlobalContext();
@@ -25,6 +28,7 @@ export default function SideNav() {
   const handleLogout = () => {
     // Use global logout function
     logout();
+    setShowLogoutModal(false);
     navigate('/');
   };
 
@@ -106,10 +110,41 @@ export default function SideNav() {
           icon={FaSignOutAlt}
           path="/"
           isCollapsed={isCollapsed}
-          onClick={handleLogout}
+          onClick={() => setShowLogoutModal(true)}
           variant="danger"
         />
       </div>
+
+      <Modal show={showLogoutModal} onClose={() => setShowLogoutModal(false)} size="md">
+        <ModalHeader className="border-b border-gray-200">
+          <div className="flex items-center">
+            <HiExclamationTriangle className="text-red-500 mr-2" />
+            Confirm Sign Out
+          </div>
+        </ModalHeader>
+        <ModalBody>
+          <p className="text-neutral-700">
+            Are you sure you want to sign out? You'll need to sign in again to access your recordings and data.
+          </p>
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            color="alternative"
+            onClick={() => setShowLogoutModal(false)}
+            className='cursor-pointer transition-all duration-200'
+          >
+            Cancel
+          </Button>
+          <Button
+            color="red"
+            onClick={handleLogout}
+            className='cursor-pointer transition-all duration-200'
+          >
+            <FaSignOutAlt className="mr-2 h-4 w-4" />
+            Sign Out
+          </Button>
+        </ModalFooter>
+      </Modal>
     </div>
   );
 }

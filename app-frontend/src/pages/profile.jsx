@@ -1,18 +1,12 @@
 
 import { useState } from 'react';
 import { Card, Label, TextInput, Button } from 'flowbite-react';
-import { HiUser, HiMail, HiLockClosed, HiUserGroup } from 'react-icons/hi';
+import { HiUser, HiMail, HiLockClosed } from 'react-icons/hi';
 import { useGlobalContext } from "../contexts/GlobalContext";
 
 export default function Profile() {
-  const [formData, setFormData] = useState({
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    password: '',
-    role: 'Researcher'
-  });
-
-  const { setLoading, loading } = useGlobalContext();
+  const { user, setLoading, loading } = useGlobalContext();
+  const [formData, setFormData] = useState(user);
 
   const handleChange = (e) => {
     setFormData({
@@ -41,24 +35,21 @@ export default function Profile() {
         <Card className='!shadow-none p-2'>
           <div className="flex flex-col items-center pb-2">
             {
-              formData.image ? (
+              user.image ? (
                 <img
-                  src={formData.image}
+                  src={user.image}
                   alt="User Avatar"
                   className="w-36 h-36 rounded-full mb-4 self-center"
                 />
               ) : (
                 <div className="w-36 h-36 rounded-full bg-gray-300 mb-4 self-center flex items-center justify-center text-6xl text-white">
-                  {formData.name ? formData.name.charAt(0) : "U"}
+                  {user.name ? user.name.charAt(0) : "U"}
                 </div>
               )
             }
             <h3 className="text-xl font-medium text-gray-900 dark:text-white">
-              {formData.name}
+              {user.name}
             </h3>
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              {formData.role}
-            </span>
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -109,33 +100,12 @@ export default function Profile() {
               />
             </div>
 
-            <div>
-              <div className="mb-2 block">
-                <Label htmlFor="role">Role</Label>
-              </div>
-              <TextInput
-                id="role"
-                name="role"
-                type="text"
-                icon={HiUserGroup}
-                placeholder="Enter your role"
-                value={formData.role}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
             <div className="flex justify-end space-x-4 pt-4">
               <Button
                 type="button"
                 color="alternative"
                 onClick={() => {
-                  setFormData({
-                    name: 'John Doe',
-                    email: 'john.doe@example.com',
-                    password: '',
-                    role: 'Researcher'
-                  });
+                  setFormData(user);
                 }}
                 className='cursor-pointer transition-all duration-200'
               >

@@ -1,7 +1,9 @@
 
 export const requests = {
-  base: 'http://localhost:8000',
-  test: '/store/endpoint/'
+  base: 'https://brain-box-68c92647e146.herokuapp.com',
+  test: '/store/endpoint/',
+  login: '/auth/login/',
+  signup: '/auth/register/',
 }
 
 export const testRecordings = [

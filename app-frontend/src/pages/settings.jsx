@@ -12,13 +12,8 @@ export default function Settings() {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = () => {
-    // Use global logout function
     logout();
-
-    // Navigate to home/login page
     navigate('/');
-
-    // Close the modal
     setShowLogoutModal(false);
   };
 
@@ -78,7 +73,6 @@ export default function Settings() {
         </Card>
       </div>
 
-      {/* Logout Confirmation Modal */}
       <Modal show={showLogoutModal} onClose={() => setShowLogoutModal(false)} size="md">
         <ModalHeader className="border-b border-gray-200">
           <div className="flex items-center">
