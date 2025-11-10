@@ -39,6 +39,7 @@ export default function Home() {
       .then(result => {
         if (result.name) {
           setUser(result);
+          localStorage.setItem('user', JSON.stringify(result));
           setLoading(false);
           navigate('/dashboard');
         } else {
