@@ -24,7 +24,7 @@ class Command(BaseCommand):
         # Create mock users
         users = []
         for i in range(users_n):
-            u, created = User.objects.get_or_create(username=f'mockuser{i}', defaults={'email': f'mock{i}@example.com'})
+            u, created = User.objects.get_or_create(name=f'mockuser{i}', defaults={'email': f'mock{i}@example.com'})
             users.append(u)
 
         for u in users:
