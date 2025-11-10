@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'bboxauth',
     'django.contrib.postgres',
     'corsheaders',
+    'settings'
 ]
 
 # Tell Django to use the custom user model from the bboxauth app
