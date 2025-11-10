@@ -20,7 +20,7 @@ try:
         print(ser.name, ser.port)
         while True:
             try:
-                command = int(input("Pick a command: \n(1)Read \n(2)Write \n(3)Exit "))
+                command = int(input("Pick a command: \n(1)Read \n(2)Save to DB \n(3)Write to MC \n(4)Exit "))
                 if command == 1:
                     bitcommand = 0x01
 
@@ -39,7 +39,24 @@ try:
                     except serial.SerialException as e:
                         print(f"Serial port error: {e}")
 
-                elif command == 4:
+                elif command == 2:
+                    values = []
+                    print("Enter what you want to write (bin, power) enter an empty line to quit: ")
+                    msg = input("> ")
+                    while msg != "":
+                        values.append([float(x.strip()) for x in msg.split(",") if x.strip()][:2])
+                        msg = input("> ")
+                    
+                    data = {
+                        "values": values,
+                        "len" : len(msg),
+                        "segn" : 45
+                    }
+                    response = requests.post(url, data=data)
+                    print("Status code:", response.status_code)
+                    print("Response body:", response.text)
+                    
+                elif command == 3:
                     try:
                         # Write data
                         ser.write(bytes([0x0A]))
@@ -60,23 +77,15 @@ try:
                     finally:
                         ser.close()
 
-                elif command == 2:
-                    bitcommand = 0x02
-                    msg = input("Enter what you want to write: ")
-                    data = {
-                        "msg": msg,
-                        "code": "2",
-                        "time" : "time"
-                    }
-                    response = requests.post(url, data=data)
-                    print("Status code:", response.status_code)
-                    print("Response body:", response.text)
-                elif command == 3:
+                
+                elif command == 4:
                     break
 
                 else:
                     print("Invalid code, retry")
                     continue
+            except KeyboardInterrupt:
+                exit()
             except:
                 print("Invalid code, retry")
                 continue
