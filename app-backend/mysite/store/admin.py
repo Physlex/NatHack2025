@@ -8,4 +8,4 @@ class RecordingSessionAdmin(admin.ModelAdmin):
 
 @admin.register(TimeSeriesEntry)
 class TimeSeriesEntryAdmin(admin.ModelAdmin):
-    list_display = ('timestamp', 'session', 'value')
+    list_display = ('id', 'session', 'value')
