@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from store.models import RecordingSession, TimeSeriesEntry, SpectrogramData
+from store.models import RecordingSession, TimeSeriesEntry, SpectrogramData, EventRelatedPotential
 from django.contrib.auth import get_user_model
 import random
 import math
@@ -24,12 +24,12 @@ class Command(BaseCommand):
         # Create mock users
         users = []
         for i in range(users_n):
-            u, created = User.objects.get_or_create(name=f'mockuser{i}', defaults={'email': f'mock{i}@example.com'})
+            u, created = User.objects.get_or_create(username=f'mockuser{i}', defaults={'email': f'mock{i}@example.com'})
             users.append(u)
 
         for u in users:
             for s_idx in range(sessions_per):
-                session = RecordingSession.objects.create(name=f'Mock Session {u.name}-{s_idx}', user=u)
+                session = RecordingSession.objects.create(name=f'Mock Session {u.username}-{s_idx}', user=u)
 
                 # Create time series entries across multiple frequencies
                 entries = []
@@ -47,5 +47,20 @@ class Command(BaseCommand):
                     # collect values for this frequency
                     values = [e.value for e in TimeSeriesEntry.objects.filter(session=session, frequency=float(f)).order_by('id')]
                     SpectrogramData.objects.create(session=session, frequency=float(f), values=values)
+
+                # Create mock Event-Related Potentials (ERP) for this session
+                channels = ['Cz', 'Pz', 'Fz']
+                erp_count = 5
+                for ch in channels:
+                    for ev in range(erp_count):
+                        latency = random.uniform(0.05, 0.4)  # seconds
+                        # generate a smooth ERP-like waveform (Gaussian-shaped) of length `frames`
+                        erp_values = []
+                        for t in range(frames):
+                            x = (t - frames*0.5) / (frames*0.15)
+                            waveform = math.exp(-0.5 * (x**2)) * (1.0 / (1 + ev*0.1))
+                            waveform += random.uniform(-0.02, 0.02)
+                            erp_values.append(waveform)
+                        EventRelatedPotential.objects.create(session=session, latency=latency, channel=ch, values=erp_values)
 
         self.stdout.write(self.style.SUCCESS('Mock data populated'))
