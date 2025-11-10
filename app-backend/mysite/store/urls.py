@@ -10,4 +10,5 @@ urlpatterns = [
     # API endpoints
     path("endpoint/", views.TimeSeriesEndpointView.as_view(), name="endpoint_create"),
     path("endpoint/<int:sid>/", views.TimeSeriesEndpointView.as_view(), name="endpoint_get"),
+    path("sessions/<uuid:uid>/", views.SessionsByUserView.as_view(), name="session_list"),
 ]

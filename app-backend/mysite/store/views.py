@@ -8,6 +8,7 @@ from .models import RecordingSession, TimeSeriesEntry
 from datetime import datetime
 from django.views.generic import TemplateView
 from django.contrib import messages
+from django.db.models import Count
 
 
 class UploadFormView(TemplateView):
@@ -112,3 +113,22 @@ class TimeSeriesEndpointView(APIView):
 
 
 # Create your views here.
+class SessionsByUserView(APIView):
+    """
+    Return all recording sessions for a specific user (by user id).
+    URL should provide `uid` as a path parameter.
+    """
+    def get(self, request, uid):
+        try:
+            sessions_qs = RecordingSession.objects.filter(user_id=uid).annotate(entries_count=Count('entries')).values('id', 'name', 'entries_count')
+            sessions = list(sessions_qs)
+            return JsonResponse({
+                "user_id": uid,
+                "sessions_count": len(sessions),
+                "sessions": sessions
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return JsonResponse({
+                "msg": f"Server error: {str(e)}",
+                "code": status.HTTP_500_INTERNAL_SERVER_ERROR
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
