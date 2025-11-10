@@ -67,7 +67,8 @@ class TimeSeriesEndpointView(APIView):
         check_keys = {"segn", "len", "values", "sid"}
         
         if not set(data.keys()) >= check_keys:
-            return JsonResponse({"msg": "Incorrect Format", "code": status.HTTP_400_BAD_REQUEST})
+            
+            return JsonResponse({"msg": "Incorrect Format", "code": status.HTTP_400_BAD_REQUEST, "keys": list(data.keys())})
             
         try:
             # Get or create the recording session
