@@ -3,4 +3,4 @@ build:
     - heroku/python
 
 run:
-  web: gunicorn mysite.wsgi:application --bind 0.0.0.0:$PORT --chdir app-backend --workers 4
+  web: gunicorn mysite.wsgi:application --bind 0.0.0.0:$PORT --chdir app-backend --workers 5
