@@ -80,7 +80,7 @@ class TimeSeriesEndpointViewCreate(APIView):
             print(data.get('uid'))
             user = get_user_model().objects.get(id=data.get('uid'))
             # Get or create the recording session
-            session, created = RecordingSession.objects.create(
+            session = RecordingSession.objects.create(
                 name=f'New Session {data.get("segn")}' if data  else 'Unnamed Session',
                 user=user
             )
