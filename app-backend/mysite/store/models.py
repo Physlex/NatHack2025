@@ -9,7 +9,8 @@ class RecordingSession(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     
 class TimeSeriesEntry(models.Model):
-    timestamp = models.DateTimeField(primary_key=True)
+    id = models.AutoField(primary_key=True)
+    timestamp = models.DateTimeField()
     session = models.ForeignKey(RecordingSession, on_delete=models.CASCADE, related_name='entries', default=None)
     value = models.FloatField()
 
