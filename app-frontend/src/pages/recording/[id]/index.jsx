@@ -19,7 +19,31 @@ export default function Recording() {
   const [spectrogramData, setSpectrogramData] = useState([]);
   const [loadingSpectrogram, setLoadingSpectrogram] = useState(false);
   const [erpData, setErpData] = useState([]);
+  const [mfccs, setMfccs] = useState([]);
   const [loadingErp, setLoadingErp] = useState(false);
+
+  const fetchMFCCData = async () => {
+    fetch(`/api/store/spectrogram/${id}/mfcc/`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+      .then(async response => {
+        if (response.ok) {
+          return await response.json();
+        } else {
+          console.log(response.body);
+          throw new Error('Failed to fetch MFCC data');
+        }
+      })
+      .then(result => {
+        setMfccs(result.mfcc.mean)
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  };
 
   const fetchErpData = async () => {
     setLoadingErp(true);
@@ -34,18 +58,18 @@ export default function Recording() {
       if (response.ok) {
         const result = await response.json();
         console.log('Raw ERP API response:', result);
-        
+
         // Be flexible with ERP data formats
         let processedData = result;
-        
+
         // Handle various response structures for ERP data
         if (result && typeof result === 'object') {
           // Try common property names for ERP data
           const possibleKeys = [
-            'erp', 'erps', 'data', 'values', 'waveform', 'signal', 
+            'erp', 'erps', 'data', 'values', 'waveform', 'signal',
             'potentials', 'voltage', 'amplitude', 'time_series', 'epochs'
           ];
-          
+
           for (const key of possibleKeys) {
             if (result[key] && Array.isArray(result[key])) {
               processedData = result[key];
@@ -53,7 +77,7 @@ export default function Recording() {
               break;
             }
           }
-          
+
           // If still an object, try to extract any array data
           if (!Array.isArray(processedData)) {
             const arrayValues = Object.values(result).find(val => Array.isArray(val));
@@ -63,12 +87,12 @@ export default function Recording() {
             }
           }
         }
-        
+
         // Convert to expected format if needed
         if (Array.isArray(processedData)) {
           // Check if it's already in {time, voltage} format
-          if (processedData.length > 0 && typeof processedData[0] === 'object' && 
-              'time' in processedData[0] && ('voltage' in processedData[0] || 'amplitude' in processedData[0] || 'value' in processedData[0])) {
+          if (processedData.length > 0 && typeof processedData[0] === 'object' &&
+            'time' in processedData[0] && ('voltage' in processedData[0] || 'amplitude' in processedData[0] || 'value' in processedData[0])) {
             // Already in correct format, just standardize property names
             processedData = processedData.map(point => ({
               time: point.time,
@@ -95,7 +119,7 @@ export default function Recording() {
             voltage: Math.sin(i * 0.3) * Math.exp(-i * 0.05) * 2
           }));
         }
-        
+
         setErpData(processedData);
         console.log('Final processed ERP data:', processedData);
       } else {
@@ -131,18 +155,18 @@ export default function Recording() {
       if (response.ok) {
         const result = await response.json();
         console.log('Raw spectrogram API response:', result);
-        
+
         // Be very flexible with data formats
         let processedData = result;
-        
+
         // Handle various response structures
         if (result && typeof result === 'object') {
           // Try common property names for spectrogram data
           const possibleKeys = [
-            'spectrogram', 'data', 'values', 'matrix', 'frequencies_data', 
+            'spectrogram', 'data', 'values', 'matrix', 'frequencies_data',
             'magnitude', 'power_spectrum', 'stft', 'fft_data', 'spectrum'
           ];
-          
+
           for (const key of possibleKeys) {
             if (result[key] && Array.isArray(result[key])) {
               processedData = result[key];
@@ -150,7 +174,7 @@ export default function Recording() {
               break;
             }
           }
-          
+
           // If still an object, try to extract any array data
           if (!Array.isArray(processedData)) {
             const arrayValues = Object.values(result).find(val => Array.isArray(val));
@@ -160,7 +184,7 @@ export default function Recording() {
             }
           }
         }
-        
+
         // If we still don't have array data, create a visualization from whatever we have
         if (!Array.isArray(processedData)) {
           console.warn('No array data found, attempting to convert object to array');
@@ -174,7 +198,7 @@ export default function Recording() {
             }
           }
         }
-        
+
         setSpectrogramData(processedData);
         console.log('Final processed spectrogram data:', processedData);
       } else {
@@ -221,121 +245,13 @@ export default function Recording() {
       .catch(error => {
         console.error('Error:', error);
       });
-    // setRecordingData({
-    //   id,
-    //   name: `New Recording ${id}`,
-    //   date: "2024-01-01",
-    //   size: "15MB",
-    //   mfcc: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-    //   spectrogramData: [
-    //     [0.12, 0.25, 0.41, 0.38, 0.22, 0.10, 0.05, 0.02],
-    //     [0.14, 0.27, 0.45, 0.43, 0.25, 0.11, 0.06, 0.03],
-    //     [0.10, 0.23, 0.40, 0.37, 0.21, 0.09, 0.05, 0.02],
-    //     [0.08, 0.21, 0.36, 0.33, 0.19, 0.08, 0.04, 0.02],
-    //     [0.11, 0.24, 0.42, 0.39, 0.23, 0.10, 0.05, 0.03],
-    //     [0.09, 0.22, 0.38, 0.35, 0.20, 0.09, 0.04, 0.02],
-    //     [0.13, 0.28, 0.47, 0.44, 0.26, 0.12, 0.06, 0.03],
-    //     [0.15, 0.30, 0.50, 0.46, 0.27, 0.13, 0.07, 0.03],
-    //     [0.12, 0.26, 0.43, 0.40, 0.24, 0.11, 0.05, 0.02],
-    //     [0.10, 0.23, 0.39, 0.36, 0.21, 0.09, 0.04, 0.02],
-    //     [0.08, 0.20, 0.35, 0.32, 0.18, 0.08, 0.04, 0.01],
-    //     [0.09, 0.22, 0.38, 0.34, 0.19, 0.08, 0.04, 0.02],
-    //     [0.11, 0.25, 0.41, 0.37, 0.22, 0.10, 0.05, 0.02],
-    //     [0.13, 0.27, 0.45, 0.42, 0.25, 0.11, 0.06, 0.03],
-    //     [0.14, 0.29, 0.48, 0.44, 0.26, 0.12, 0.06, 0.03],
-    //     [0.12, 0.25, 0.42, 0.39, 0.23, 0.10, 0.05, 0.02],
-    //     [0.10, 0.22, 0.37, 0.34, 0.19, 0.09, 0.04, 0.02],
-    //     [0.08, 0.19, 0.33, 0.30, 0.17, 0.07, 0.03, 0.01],
-    //     [0.09, 0.21, 0.36, 0.32, 0.18, 0.08, 0.04, 0.02],
-    //     [0.11, 0.24, 0.40, 0.36, 0.21, 0.09, 0.05, 0.02]
-    //   ],
-    //   periodogramData: [
-    //     { frequency: 1, power: 0.03 },
-    //     { frequency: 2, power: 0.05 },
-    //     { frequency: 3, power: 0.09 },
-    //     { frequency: 4, power: 0.12 },
-    //     { frequency: 5, power: 0.18 },
-    //     { frequency: 6, power: 0.24 },
-    //     { frequency: 7, power: 0.32 },
-    //     { frequency: 8, power: 0.45 },
-    //     { frequency: 9, power: 0.52 },
-    //     { frequency: 10, power: 0.48 },
-    //     { frequency: 11, power: 0.36 },
-    //     { frequency: 12, power: 0.29 },
-    //     { frequency: 13, power: 0.23 },
-    //     { frequency: 14, power: 0.19 },
-    //     { frequency: 15, power: 0.16 },
-    //     { frequency: 16, power: 0.14 },
-    //     { frequency: 17, power: 0.12 },
-    //     { frequency: 18, power: 0.11 },
-    //     { frequency: 19, power: 0.10 },
-    //     { frequency: 20, power: 0.09 },
-    //     { frequency: 21, power: 0.08 },
-    //     { frequency: 22, power: 0.07 },
-    //     { frequency: 23, power: 0.07 },
-    //     { frequency: 24, power: 0.06 },
-    //     { frequency: 25, power: 0.05 },
-    //     { frequency: 26, power: 0.05 },
-    //     { frequency: 27, power: 0.04 },
-    //     { frequency: 28, power: 0.04 },
-    //     { frequency: 29, power: 0.03 },
-    //     { frequency: 30, power: 0.03 },
-    //     { frequency: 31, power: 0.03 },
-    //     { frequency: 32, power: 0.02 },
-    //     { frequency: 33, power: 0.02 },
-    //     { frequency: 34, power: 0.02 },
-    //     { frequency: 35, power: 0.02 },
-    //     { frequency: 36, power: 0.02 },
-    //     { frequency: 37, power: 0.02 },
-    //     { frequency: 38, power: 0.02 },
-    //     { frequency: 39, power: 0.02 },
-    //     { frequency: 40, power: 0.02 }
-    //   ],
-    //   erpData: [
-    //     { time: -200, voltage: 0.2 },
-    //     { time: -180, voltage: 0.1 },
-    //     { time: -160, voltage: 0.0 },
-    //     { time: -140, voltage: -0.1 },
-    //     { time: -120, voltage: -0.1 },
-    //     { time: -100, voltage: 0.0 },
-    //     { time: -80, voltage: 0.1 },
-    //     { time: -60, voltage: 0.2 },
-    //     { time: -40, voltage: 0.3 },
-    //     { time: -20, voltage: 0.4 },
-    //     { time: 0, voltage: 0.8 },
-    //     { time: 20, voltage: 1.5 },
-    //     { time: 40, voltage: 2.1 },
-    //     { time: 60, voltage: 2.5 },
-    //     { time: 80, voltage: 2.3 },
-    //     { time: 100, voltage: 1.8 },
-    //     { time: 120, voltage: 1.0 },
-    //     { time: 140, voltage: 0.4 },
-    //     { time: 160, voltage: -0.2 },
-    //     { time: 180, voltage: -0.6 },
-    //     { time: 200, voltage: -1.0 },
-    //     { time: 220, voltage: -0.8 },
-    //     { time: 240, voltage: -0.4 },
-    //     { time: 260, voltage: -0.2 },
-    //     { time: 280, voltage: 0.1 },
-    //     { time: 300, voltage: 0.3 },
-    //     { time: 320, voltage: 0.4 },
-    //     { time: 340, voltage: 0.5 },
-    //     { time: 360, voltage: 0.3 },
-    //     { time: 380, voltage: 0.1 },
-    //     { time: 400, voltage: 0.0 },
-    //     { time: 420, voltage: -0.1 },
-    //     { time: 440, voltage: -0.1 },
-    //     { time: 460, voltage: -0.1 },
-    //     { time: 480, voltage: 0.0 },
-    //     { time: 500, voltage: 0.1 }
-    //   ]
-    // });
   }
 
   useEffect(() => {
     fetchRecordingData();
     fetchSpectrogramData();
     fetchErpData();
+    fetchMFCCData();
   }, [id]);
 
   return (
@@ -394,7 +310,7 @@ export default function Recording() {
             <div className="relative z-10">
               <h3 className="text-2xl font-bold text-white">MFCC Features</h3>
               <div className="flex flex-row items-center text-white">
-                <p>{recordingData.mfcc ? recordingData.mfcc.length : 0} coefficients</p>
+                <p>{mfccs ? mfccs.length : 0} coefficients</p>
                 <MdOpenInNew
                   className="ml-1 mt-[0.15rem] cursor-pointer text-white hover:text-neutral-500 transition-colors"
                   onClick={() => setMfccModalOpen(true)}
@@ -472,7 +388,7 @@ export default function Recording() {
           <div className="space-y-4">
             <p>The Mel-Frequency Cepstral Coefficients (MFCCs) are a representation of the short-term power spectrum of a sound signal. They are commonly used in audio processing and speech recognition.</p>
             <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto">
-              {recordingData.mfcc ? JSON.stringify(recordingData.mfcc, null, 2) : 'No MFCC data available.'}
+              {mfccs ? JSON.stringify(mfccs, null, 2) : 'No MFCC data available.'}
             </pre>
           </div>
         </ModalBody>
