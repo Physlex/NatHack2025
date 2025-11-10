@@ -11,6 +11,7 @@ from django.contrib import messages
 from django.db.models import Count
 import numpy as np
 from scipy.fftpack import dct
+from django.contrib.auth import get_user_model
 
 
 class UploadFormView(TemplateView):
@@ -67,6 +68,7 @@ class TimeSeriesEndpointView(APIView):
 
 class TimeSeriesEndpointViewCreate(APIView):
     def post(self, request, **kwargs):
+        print("Received POST data:", request.data)
         data = request.data
         check_keys = {"segn", "len", "values", "uid"}
         
@@ -75,10 +77,11 @@ class TimeSeriesEndpointViewCreate(APIView):
             return JsonResponse({"msg": "Incorrect Format", "code": status.HTTP_400_BAD_REQUEST, "keys": list(data.keys())})
                 
         try:
+            user = get_user_model().objects.get(id=data['uid'])
             # Get or create the recording session
             session, created = RecordingSession.objects.create(
                 defaults={'name': f'New Session {data["segn"]}'},
-                user__id=data['uid']
+                user=user
             )
             
             # Create time series entries
