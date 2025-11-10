@@ -5,15 +5,10 @@ import struct
 import sys
 import requests
 import serial.tools.list_ports
-'''
-ports = list(serial.tools.list_ports.comports())
-for p in ports:
 
-    print(f"{p.device}\t{p.description}\t{p.hwid}")
-    '''
 
 PORT_NAME = '/dev/ttyUSB0'
-url = "http://127.0.0.1:8000/store/endpoint/"
+url = "https://brain-box-68c92647e146.herokuapp.com/store/endpoint/"
 
 try:
     with serial.Serial(PORT_NAME, 9600) as ser:
