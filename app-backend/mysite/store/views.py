@@ -121,7 +121,13 @@ class SessionsByUserView(APIView):
     """
     def get(self, request, uid):
         try:
-            sessions_qs = RecordingSession.objects.filter(user_id=uid)
+            sessions_qs = RecordingSession.objects.filter(user__id=uid)
+            if not sessions_qs.exists():
+                return JsonResponse({
+                    "user_id": uid,
+                    "sessions_count": 0,
+                    "sessions": []
+                }, status=status.HTTP_200_OK)
             sessions = list(sessions_qs)
             return JsonResponse({
                 "user_id": uid,
