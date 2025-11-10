@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react"
 import RecordingListItem from "../components/RecordingListItem";
-import { testRecordings } from "../lib/constants";
 import { Button } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 import { useGlobalContext } from "../contexts/GlobalContext";
+import { requests } from "../lib/constants";
 
 export default function Dashboard() {
   const [data, setData] = useState([])
@@ -11,7 +11,26 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   const fetchData = async () => {
-    setData(testRecordings)
+    fetch('/api' + requests.sessions + user.id + '/', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+      .then(async response => {
+        if (response.ok) {
+          return await response.json();
+        } else {
+          console.log(response.body);
+          throw new Error('Failed to fetch recordings');
+        }
+      })
+      .then(result => {
+        setData(result.sessions);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
   }
 
   useEffect(() => {

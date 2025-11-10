@@ -19,7 +19,7 @@ export default function Home() {
     e.preventDefault();
     const url = mode === "login" ? requests.login : requests.signup;
     setLoading(true);
-    fetch(requests.base + url, {
+    fetch('/api' + url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

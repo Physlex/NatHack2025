@@ -4,6 +4,8 @@ export const requests = {
   test: '/store/endpoint/',
   login: '/auth/login/',
   signup: '/auth/register/',
+  recordings: '/store/endpoint/',
+  sessions: '/store/sessions/',
 }
 
 export const testRecordings = [
