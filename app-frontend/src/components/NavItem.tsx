@@ -20,7 +20,7 @@ export default function NavItem({
   const navigate = useNavigate();
   const location = useLocation();
   
-  const isActive = location.pathname === path;
+  const isActive = location.pathname.startsWith(path);
   
   const handleClick = () => {
     if (onClick) {
