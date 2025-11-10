@@ -94,7 +94,7 @@ class TimeSeriesEndpointView(APIView):
             return JsonResponse({
                 "msg": "Data saved successfully",
                 "session_id": session.id,
-                "entries_count": len(entries),
+                "entries_count": len(values),
                 "code": status.HTTP_201_CREATED
             })
         # except (ValueError, TypeError) as e:
