@@ -63,14 +63,14 @@ class TimeSeriesEndpointView(APIView):
         return JsonResponse({"session_id": sid, "entries": list(entries)})
 
     def post(self, request):
-        data = request.data
-        check_keys = {"segn", "len", "values", "sid"}
-        
-        if not set(data.keys()) >= check_keys:
+            data = request.data
+            check_keys = {"segn", "len", "values", "sid"}
             
-            return JsonResponse({"msg": "Incorrect Format", "code": status.HTTP_400_BAD_REQUEST, "keys": list(data.keys())})
-            
-        try:
+            if not set(data.keys()) >= check_keys:
+                
+                return JsonResponse({"msg": "Incorrect Format", "code": status.HTTP_400_BAD_REQUEST, "keys": list(data.keys())})
+                
+        # try:
             # Get or create the recording session
             session, created = RecordingSession.objects.get_or_create(
                 id=data['sid'],
@@ -96,16 +96,17 @@ class TimeSeriesEndpointView(APIView):
                 "entries_count": len(entries),
                 "code": status.HTTP_201_CREATED
             })
-        except (ValueError, TypeError) as e:
-            return JsonResponse({
-                "msg": f"Invalid data format: {str(e)}",
-                "code": status.HTTP_400_BAD_REQUEST
-            })
-        except Exception as e:
-            return JsonResponse({
-                "msg": f"Server error: {str(e)}",
-                "code": status.HTTP_500_INTERNAL_SERVER_ERROR
-            })
+        # except (ValueError, TypeError) as e:
+        #     return JsonResponse({
+        #         "msg": f"Invalid data format: {str(e)}",
+        #         "code": status.HTTP_400_BAD_REQUEST
+        #     })
+        # except Exception as e:
+            
+        #     return JsonResponse({
+        #         "msg": f"Server error: {str(e)}",
+        #         "code": status.HTTP_500_INTERNAL_SERVER_ERROR
+        #     })
 
 
 
