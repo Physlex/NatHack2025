@@ -1,0 +1,6 @@
+build:
+  buildpacks:
+    - heroku/python
+
+run:
+  web: gunicorn mysite.wsgi:application --bind 0.0.0.0:$PORT --chdir app-backend --workers 3
