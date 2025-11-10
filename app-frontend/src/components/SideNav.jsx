@@ -10,18 +10,21 @@ import {
 } from 'react-icons/fa';
 import { PiWaveSineBold } from "react-icons/pi";
 import NavItem from './NavItem';
+import { useGlobalContext } from '../contexts/GlobalContext';
 
 export default function SideNav() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useGlobalContext();
 
   if (location.pathname === '/') {
     return null;
   }
 
   const handleLogout = () => {
-    // TODO: do logout
+    // Use global logout function
+    logout();
     navigate('/');
   };
 

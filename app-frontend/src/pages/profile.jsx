@@ -106,7 +106,6 @@ export default function Profile() {
                 placeholder="Leave blank to keep current password"
                 value={formData.password}
                 onChange={handleChange}
-                helperText="Only fill this field if you want to change your password"
               />
             </div>
 
@@ -138,12 +137,13 @@ export default function Profile() {
                     role: 'Researcher'
                   });
                 }}
+                className='cursor-pointer transition-all duration-200'
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                className="bg-primary hover:bg-primary-light"
+                className="bg-primary hover:bg-primary-light cursor-pointer transition-all duration-200"
                 disabled={loading}
               >
                 {loading ? 'Saving...' : 'Save Changes'}

@@ -4,15 +4,16 @@ import { Card, Button, Modal, ModalHeader, ModalBody, ModalFooter, Label } from 
 import { HiExclamationTriangle } from 'react-icons/hi2';
 import { useNavigate } from 'react-router-dom';
 import { FaSignOutAlt } from 'react-icons/fa';
+import { useGlobalContext } from '../contexts/GlobalContext';
 
 export default function Settings() {
   const navigate = useNavigate();
+  const { logout } = useGlobalContext();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = () => {
-    // Clear any stored authentication data
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
+    // Use global logout function
+    logout();
 
     // Navigate to home/login page
     navigate('/');
@@ -51,7 +52,7 @@ export default function Settings() {
                 <Label className="text-sm font-medium">Export Data</Label>
                 <p className="text-sm text-gray-500">Download all your recordings and data</p>
               </div>
-              <Button color="light" size="sm">
+              <Button color="light" size="sm" className='cursor-pointer transition-all duration-200'>
                 Export
               </Button>
             </div>
@@ -66,6 +67,7 @@ export default function Settings() {
                   color="red"
                   size="sm"
                   onClick={() => setShowLogoutModal(true)}
+                  className='cursor-pointer transition-all duration-200'
                 >
                   <FaSignOutAlt className="mr-2 h-4 w-4" />
                   Sign Out
@@ -78,27 +80,29 @@ export default function Settings() {
 
       {/* Logout Confirmation Modal */}
       <Modal show={showLogoutModal} onClose={() => setShowLogoutModal(false)} size="md">
-        <ModalHeader>
+        <ModalHeader className="border-b border-gray-200">
           <div className="flex items-center">
             <HiExclamationTriangle className="text-red-500 mr-2" />
             Confirm Sign Out
           </div>
         </ModalHeader>
         <ModalBody>
-          <p className="text-gray-700">
+          <p className="text-neutral-700">
             Are you sure you want to sign out? You'll need to sign in again to access your recordings and data.
           </p>
         </ModalBody>
         <ModalFooter>
           <Button
-            color="gray"
+            color="alternative"
             onClick={() => setShowLogoutModal(false)}
+            className='cursor-pointer transition-all duration-200'
           >
             Cancel
           </Button>
           <Button
-            color="failure"
+            color="red"
             onClick={handleLogout}
+            className='cursor-pointer transition-all duration-200'
           >
             <FaSignOutAlt className="mr-2 h-4 w-4" />
             Sign Out
