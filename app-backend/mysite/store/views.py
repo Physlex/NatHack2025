@@ -80,7 +80,8 @@ class TimeSeriesEndpointView(APIView):
             # Create time series entries
             entries = []
             values = data['values']
-            print(values)
+            
+            print(data)
             for value in values:
                 entries.append({
                     "session":session,
