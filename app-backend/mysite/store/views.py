@@ -68,15 +68,15 @@ class TimeSeriesEndpointView(APIView):
 
 class TimeSeriesEndpointViewCreate(APIView):
     def post(self, request, **kwargs):
-        print("Received POST data:", request.data)
-        data = request.data
-        check_keys = {"segn", "len", "values", "uid"}
-        
-        if not set(data.keys()) >= check_keys:
+            print("Received POST data:", request.data)
+            data = request.data
+            check_keys = {"segn", "len", "values", "uid"}
             
-            return JsonResponse({"msg": "Incorrect Format", "code": status.HTTP_400_BAD_REQUEST, "keys": list(data.keys())})
+            if not set(data.keys()) >= check_keys:
                 
-        try:
+                return JsonResponse({"msg": "Incorrect Format", "code": status.HTTP_400_BAD_REQUEST, "keys": list(data.keys())})
+                    
+        # try:
             print(data.get('uid'))
             user = get_user_model().objects.get(id=data.get('uid'))
             # Get or create the recording session
@@ -106,17 +106,17 @@ class TimeSeriesEndpointViewCreate(APIView):
                 "entries_count": len(values),
                 "code": status.HTTP_201_CREATED
             })
-        except (ValueError, TypeError) as e:
-            return JsonResponse({
-                "msg": f"Invalid data format: {str(e)}",
-                "code": status.HTTP_400_BAD_REQUEST
-            })
-        except Exception as e:
+        # except (ValueError, TypeError) as e:
+        #     return JsonResponse({
+        #         "msg": f"Invalid data format: {str(e)}",
+        #         "code": status.HTTP_400_BAD_REQUEST
+        #     })
+        # except Exception as e:
             
-            return JsonResponse({
-                "msg": f"Server error: {str(e)}",
-                "code": status.HTTP_500_INTERNAL_SERVER_ERROR
-            })
+        #     return JsonResponse({
+        #         "msg": f"Server error: {str(e)}",
+        #         "code": status.HTTP_500_INTERNAL_SERVER_ERROR
+        #     })
 
 
 
