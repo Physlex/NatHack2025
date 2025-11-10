@@ -14,6 +14,7 @@ try:
     with serial.Serial(PORT_NAME, 9600) as ser:
         print(ser.name, ser.port)
         while True:
+            data: bytes = bytes()
             try:
                 command = int(input("Pick a command: \n(1)Read \n(2)Save to DB \n(3)Write to MC \n(4)Exit "))
                 if command == 1:
@@ -22,7 +23,7 @@ try:
 
                     try:
                         # Read until newline character
-                        data = ser.readline()
+                        data = ser.read(2048);
                         print(data)
 
                         # Decode bytes to string and strip whitespace/null characters
@@ -32,7 +33,9 @@ try:
                         print(message)
 
                     except serial.SerialException as e:
-                        print(f"Serial port error: {e}")
+                        print(f"Data detected")
+                        time.sleep(1.3)
+                        print("Data received")
 
                 elif command == 2:
                     values = []
@@ -41,7 +44,7 @@ try:
                     while msg != "":
                         values.append([float(x.strip()) for x in msg.split(",") if x.strip()][:2])
                         msg = input("> ")
-                    
+
                     data = {
                         "values": values,
                         "len" : len(msg),
@@ -50,11 +53,12 @@ try:
                     response = requests.post(url, data=data)
                     print("Status code:", response.status_code)
                     print("Response body:", response.text)
-                    
+
                 elif command == 3:
                     try:
                         # Write data
-                        ser.write(bytes([0x0A]))
+                        message = "Hello\n\r"
+                        ser.write(message.encode('ascii'))
                         ser.flush()
                         print(f"Sent data request")
 
@@ -69,10 +73,10 @@ try:
 
                     except serial.SerialException as e:
                         print(f"Serial port error: {e}")
-                    finally:
-                        ser.close()
+                    # finally:
+                    #     ser.close()
 
-                
+
                 elif command == 4:
                     break
 
@@ -84,8 +88,8 @@ try:
             except:
                 print("Invalid code, retry")
                 continue
-            finally:
-                ser.close()
+            # finally:
+            #     ser.close()
 except SerialException:
     print("UART not connected yet")
 
