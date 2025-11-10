@@ -24,12 +24,12 @@ class Command(BaseCommand):
         # Create mock users
         users = []
         for i in range(users_n):
-            u, created = User.objects.get_or_create(username=f'mockuser{i}', defaults={'email': f'mock{i}@example.com'})
+            u, created = User.objects.get_or_create(name=f'mockuser{i}', defaults={'email': f'mock{i}@example.com'})
             users.append(u)
 
         for u in users:
             for s_idx in range(sessions_per):
-                session = RecordingSession.objects.create(name=f'Mock Session {u.username}-{s_idx}', user=u)
+                session = RecordingSession.objects.create(name=f'Mock Session {u.name}-{s_idx}', user=u)
 
                 # Create time series entries across multiple frequencies
                 entries = []
