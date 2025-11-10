@@ -63,18 +63,17 @@ class TimeSeriesEndpointView(APIView):
         return JsonResponse({"session_id": sid, "entries": list(entries)})
 
     def post(self, request):
-            data = request.data
-            check_keys = {"segn", "len", "values", "sid"}
+        data = request.data
+        check_keys = {"segn", "len", "values"}
+        
+        if not set(data.keys()) >= check_keys:
             
-            if not set(data.keys()) >= check_keys:
+            return JsonResponse({"msg": "Incorrect Format", "code": status.HTTP_400_BAD_REQUEST, "keys": list(data.keys())})
                 
-                return JsonResponse({"msg": "Incorrect Format", "code": status.HTTP_400_BAD_REQUEST, "keys": list(data.keys())})
-                
-        # try:
+        try:
             # Get or create the recording session
-            session, created = RecordingSession.objects.get_or_create(
-                id=data['sid'],
-                defaults={'name': f'Session {data["sid"]}'}
+            session, created = RecordingSession.objects.create(
+                defaults={'name': f'New Session {data["segn"]}'}
             )
             
             # Create time series entries
@@ -83,8 +82,9 @@ class TimeSeriesEndpointView(APIView):
             print("here: ", data, values)
             for value in values:
                 TimeSeriesEntry.objects.create(
+                    timestamp=value[0],
                     session=session,
-                    value=value
+                    value=value[1]
                 )
             
             
@@ -97,17 +97,17 @@ class TimeSeriesEndpointView(APIView):
                 "entries_count": len(values),
                 "code": status.HTTP_201_CREATED
             })
-        # except (ValueError, TypeError) as e:
-        #     return JsonResponse({
-        #         "msg": f"Invalid data format: {str(e)}",
-        #         "code": status.HTTP_400_BAD_REQUEST
-        #     })
-        # except Exception as e:
+        except (ValueError, TypeError) as e:
+            return JsonResponse({
+                "msg": f"Invalid data format: {str(e)}",
+                "code": status.HTTP_400_BAD_REQUEST
+            })
+        except Exception as e:
             
-        #     return JsonResponse({
-        #         "msg": f"Server error: {str(e)}",
-        #         "code": status.HTTP_500_INTERNAL_SERVER_ERROR
-        #     })
+            return JsonResponse({
+                "msg": f"Server error: {str(e)}",
+                "code": status.HTTP_500_INTERNAL_SERVER_ERROR
+            })
 
 
 
