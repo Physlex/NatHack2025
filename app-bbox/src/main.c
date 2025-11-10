@@ -1,3 +1,4 @@
+
 #include "main.h"
 
 #include <stdint.h>
@@ -28,6 +29,9 @@ uint8_t *pBufferReadyForUser;
 uint8_t *pBufferReadyForReception;
 int uwNbReceivedChars;
 
+/* #include"fram.h" */
+
+
 COM_InitTypeDef BspCOMInit;
 static uint32_t delay = 250;
 static uint8_t transmitBuffer[sizeof(complex_t) * NPERSEG];
@@ -40,6 +44,7 @@ const char *hello = "Hello World!";
 const char *double_char = "ab";
 const uint16_t double_char_len = 3;
 const uint16_t hello_len = 13;
+
 
 
 //! @note Function definitions.
@@ -87,6 +92,10 @@ int main(void) {
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_USART1_UART_Init();
+    if (BSP_COM_Init(COM1, &BspCOMInit) != BSP_ERROR_NONE) {
+        Error_Handler();
+    }
+
 
     BSP_PB_Init(BUTTON_SW1, BUTTON_MODE_EXTI);
     BSP_PB_Init(BUTTON_SW2, BUTTON_MODE_EXTI);
