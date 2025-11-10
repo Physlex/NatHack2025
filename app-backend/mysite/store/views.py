@@ -65,7 +65,7 @@ class TimeSeriesEndpointView(APIView):
         entries = session.entries.all().values('frequency', 'value')
         return JsonResponse({"session_id": sid, "name": session.name, "entries": list(entries)})
 
-    def post(self, request):
+    def post(self, request, **kwargs):
         data = request.data
         check_keys = {"segn", "len", "values", "uid"}
         
