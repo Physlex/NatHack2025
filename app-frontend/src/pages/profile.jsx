@@ -37,7 +37,7 @@ export default function Profile() {
         Profile
       </h1>
 
-      <div className="w-full">
+      <div className="w-full max-w-4xl">
         <Card className='!shadow-none p-2'>
           <div className="flex flex-col items-center pb-2">
             {
