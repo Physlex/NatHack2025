@@ -1,14 +1,54 @@
 from django.db import models
+from django.conf import settings
+import uuid
 
 # Create your models here.
 
 class RecordingSession(models.Model):
-    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
+    date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    
 class TimeSeriesEntry(models.Model):
-    timestamp = models.DateTimeField(auto_now_add=True, primary_key=True)
+    id = models.AutoField(primary_key=True)
+    frequency = models.FloatField()
     session = models.ForeignKey(RecordingSession, on_delete=models.CASCADE, related_name='entries', default=None)
     value = models.FloatField()
 
     def __str__(self):
-        return f"{self.timestamp}: {self.value}"
+        return f"{self.frequency}: {self.value}"
+
+class SpectrogramData(models.Model):
+    """Store precomputed spectrogram data per frequency for a RecordingSession.
+
+    Each instance represents one frequency's magnitude/time series for a session.
+    """
+    session = models.ForeignKey(RecordingSession, on_delete=models.CASCADE, related_name='spectrogram_rows')
+    frequency = models.FloatField()
+    values = models.JSONField(null=True, blank=True)
+
+    class Meta:
+        unique_together = (('session', 'frequency'),)
+        ordering = ['frequency']
+
+    def __str__(self):
+        return f"SpectrogramRow(session={self.session_id}, freq={self.frequency})"
+
+class EventRelatedPotential(models.Model):
+    """Store event-related potential (ERP) rows for a RecordingSession.
+
+    Each record represents one ERP waveform (e.g., for one event and channel).
+    """
+    session = models.ForeignKey(RecordingSession, on_delete=models.CASCADE, related_name='erps')
+    # time since session start in seconds (or None if using event_time)
+    latency = models.FloatField(null=True, blank=True)
+    # optional absolute event time
+    event_time = models.DateTimeField(null=True, blank=True)
+    channel = models.CharField(max_length=32, null=True, blank=True)
+    values = models.JSONField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['latency', 'channel']
+
+    def __str__(self):
+        return f"ERP(session={self.session_id}, channel={self.channel}, latency={self.latency})"
