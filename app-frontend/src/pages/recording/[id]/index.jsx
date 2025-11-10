@@ -188,22 +188,22 @@ export default function Recording() {
             <div className="relative z-10">
               <h3 className="text-2xl font-bold text-white">MFCC Features</h3>
               <div className="flex flex-row items-center text-white">
-                <p>{recordingData.mfcc ? recordingData.mfcc.length : 0} coeffs</p>
+                <p>{recordingData.mfcc ? recordingData.mfcc.length : 0} coefficients</p>
                 <MdOpenInNew
-                  className="ml-1 mt-[0.15rem] cursor-pointer text-white hover:text-gray-800 transition-colors"
+                  className="ml-1 mt-[0.15rem] cursor-pointer text-white hover:text-neutral-500 transition-colors"
                   onClick={() => setMfccModalOpen(true)}
                 />
               </div>
             </div>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-xl border border-neutral-200/80 flex flex-col gap-2 w-full">
+        <div className="bg-white p-6 rounded-xl border border-neutral-200/80 flex flex-col gap-6 w-full">
           <div className="flex flex-row justify-between">
             <h3 className="text-2xl font-bold">Data</h3>
             <ButtonGroup className="!shadow-none">
               <Button
                 color="alternative"
-                className={`transition-all duration-200 ${chartType === "spectrogram" ? "bg-primary hover:bg-primary-light text-white hover:text-black hover:border-none" : ""}`}
+                className={`transition-all duration-200 cursor-pointer ${chartType === "spectrogram" ? "bg-primary hover:bg-primary-light text-white hover:text-black hover:border-none" : ""}`}
                 onClick={() => setChartType('spectrogram')}
               >
                 <AiOutlineHeatMap className="me-2 h-4 w-4" />
@@ -211,7 +211,7 @@ export default function Recording() {
               </Button>
               <Button
                 color="alternative"
-                className={`transition-all duration-200 ${chartType === "periodogram" ? "bg-primary hover:bg-primary-light text-white hover:text-black hover:border-none" : ""}`}
+                className={`transition-all duration-200 cursor-pointer ${chartType === "periodogram" ? "bg-primary hover:bg-primary-light text-white hover:text-black hover:border-none" : ""}`}
                 onClick={() => setChartType('periodogram')}
               >
                 <BiPulse className="me-2 h-4 w-4" />
@@ -219,7 +219,7 @@ export default function Recording() {
               </Button>
               <Button
                 color="alternative"
-                className={`transition-all duration-200 ${chartType === "potentials" ? "bg-primary hover:bg-primary-light text-white hover:text-black hover:border-none" : ""}`}
+                className={`transition-all duration-200 cursor-pointer ${chartType === "potentials" ? "bg-primary hover:bg-primary-light text-white hover:text-black hover:border-none" : ""}`}
                 onClick={() => setChartType('potentials')}
               >
                 <GiBrain className="me-2 h-4 w-4" />

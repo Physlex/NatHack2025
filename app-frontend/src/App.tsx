@@ -7,6 +7,8 @@ import Recording from './pages/recording/[id]'
 import Recordings from './pages/recording'
 import Layout from './components/Layout'
 import NotFound from './pages/NotFound'
+import Profile from './pages/profile'
+import Settings from './pages/settings'
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/recording" element={<Recordings />} />
             <Route path="/recording/:id" element={<Recording />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>

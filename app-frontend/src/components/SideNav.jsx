@@ -16,13 +16,12 @@ export default function SideNav() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Don't show sidebar on home page
   if (location.pathname === '/') {
     return null;
   }
 
   const handleLogout = () => {
-    // Add logout logic here
+    // TODO: do logout
     navigate('/');
   };
 
@@ -52,7 +51,6 @@ export default function SideNav() {
   return (
     <div className={`bg-white border-r border-gray-200 h-screen flex flex-col transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'
       }`}>
-      {/* Header with Logo and Toggle */}
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
@@ -62,7 +60,7 @@ export default function SideNav() {
                 alt="Brain Box"
                 className="w-8 h-8"
               />
-              <span className="text-xl font-medium text-primary-dark">Brain Box</span>
+              <span className="text-xl font-bold text-primary-dark">Brain Box</span>
             </div>
           )}
           {isCollapsed && (
@@ -85,7 +83,6 @@ export default function SideNav() {
         </div>
       </div>
 
-      {/* Menu Section */}
       <div className="flex-1 p-4">
         <nav className="space-y-2">
           {menuItems.map((item) => (
@@ -100,7 +97,6 @@ export default function SideNav() {
         </nav>
       </div>
 
-      {/* Logout Section */}
       <div className="p-4 border-t border-gray-200">
         <NavItem
           name="Logout"

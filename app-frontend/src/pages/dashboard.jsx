@@ -47,7 +47,7 @@ export default function Dashboard() {
               /> */}
               <div className="relative z-10 h-full justify-center flex flex-col flex-1">
                 <h5 className="text-2xl font-bold tracking-tight text-white">
-                  Welcome
+                  Welcome, {userData.name}!
                 </h5>
                 <p className="font-normal text-white">
                   View your recent activity and insights here.
